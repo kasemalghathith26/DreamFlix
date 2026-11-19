@@ -3,65 +3,98 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090909">
 <title>DreamFlix</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif;padding-bottom:75px}
-header{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#090909;position:sticky;top:0;z-index:5}
-.logo{font-size:25px;font-weight:900;color:#ed1724;letter-spacing:-1px}
+button{cursor:pointer}
+header{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#090909;position:sticky;top:0;z-index:5;border-bottom:1px solid #222}
+.logo{font-size:25px;font-weight:900;color:#ed1724}
 .logo span{color:white}
-header button,.nav button{background:none;border:0;color:white;font-size:20px}
-.search{padding:10px 16px}
-.search input{width:100%;padding:13px;border-radius:7px;background:#242424;border:1px solid #444;color:white;font-size:15px}
-.hero{min-height:340px;padding:100px 20px 25px;background:linear-gradient(0deg,#090909 0%,transparent 100%),linear-gradient(90deg,#210000,#111 65%,#292020)}
+header button{background:none;border:0;color:white;font-size:23px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #333;display:flex;justify-content:space-around;padding:10px 2px;z-index:10}
+nav button{background:none;border:0;color:#ddd;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:5px}
+nav span{font-size:20px}
+.page{display:none}
+.page.active{display:block}
+.hero{min-height:320px;padding:95px 20px 25px;background:linear-gradient(0deg,#090909,transparent 90%),linear-gradient(90deg,#39080d,#111 65%,#252020)}
 .hero small{color:#ff5962;font-weight:bold}
-.hero h1{font-size:36px;margin:10px 0}
-.hero p{color:#ddd;max-width:330px;line-height:1.5}
-.actions{display:flex;gap:10px;margin-top:20px}
-.actions button{padding:12px 18px;border:0;border-radius:5px;font-weight:bold}
+.hero h1{font-size:36px;margin:12px 0}
+.hero p{color:#ddd;max-width:350px;line-height:1.5}
+.action{padding:12px 18px;border:0;border-radius:5px;font-weight:bold;margin:8px 5px 0 0}
 .play{background:white;color:#111}
 .more{background:#444;color:white}
-section{padding:12px 16px 8px}
-section h2{font-size:19px;margin:10px 0 14px}
-.shelf{display:flex;gap:11px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
-.shelf::-webkit-scrollbar{display:none}
-.poster{flex:0 0 125px;height:180px;border-radius:8px;background:linear-gradient(145deg,#601018,#171717);display:flex;align-items:end;padding:10px;font-weight:bold;font-size:15px;box-shadow:0 3px 12px #000}
+section{padding:12px 16px}
+section h2{font-size:19px}
+.shelf{display:flex;gap:11px;overflow-x:auto;padding-bottom:12px}
+.poster{flex:0 0 125px;height:180px;border-radius:8px;background:linear-gradient(145deg,#75121d,#171717);display:flex;align-items:end;padding:10px;font-weight:bold;font-size:15px}
 .poster:nth-child(2){background:linear-gradient(145deg,#164c68,#151515)}
 .poster:nth-child(3){background:linear-gradient(145deg,#633c12,#151515)}
 .poster:nth-child(4){background:linear-gradient(145deg,#44246c,#151515)}
 .poster:nth-child(5){background:linear-gradient(145deg,#17604c,#151515)}
-.kids{margin:18px 16px;padding:22px;border-radius:12px;background:linear-gradient(120deg,#ff75ae,#7b55d9,#32b8d1);color:white}
-.kids h2{margin:0 0 8px}
-.kids button{border:0;border-radius:6px;padding:10px 16px;font-weight:bold}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #333;display:flex;justify-content:space-around;padding:12px 3px;z-index:10}
-.nav button{font-size:12px;display:flex;flex-direction:column;align-items:center;gap:5px}
-.nav span{font-size:20px}
+.kids-banner{margin:15px;padding:22px;border-radius:12px;background:linear-gradient(120deg,#ff75ae,#7b55d9,#32b8d1)}
+.kids-banner h2{margin-top:0}
+.profile-screen{min-height:75vh;text-align:center;padding:55px 18px}
+.profile-screen h1{font-size:28px}
+.profiles{display:grid;grid-template-columns:repeat(2,minmax(0,130px));justify-content:center;gap:25px;margin:35px auto}
+.profile{background:none;border:0;color:white;font-size:15px}
+.avatar{width:95px;height:95px;border-radius:14px;margin:0 auto 10px;display:grid;place-items:center;font-size:43px;background:linear-gradient(135deg,#9c1724,#311016);border:2px solid transparent}
+.profile:focus .avatar,.profile:hover .avatar{border-color:white}
+.kids-avatar{background:linear-gradient(135deg,#ff70b5,#7755df,#32b8d1)}
+.search-area{padding:25px 16px}
+.search-area input{width:100%;padding:15px;border-radius:8px;background:#242424;border:1px solid #555;color:white;font-size:17px}
+.results{display:flex;flex-wrap:wrap;gap:12px;padding:15px 16px}
+.results .poster{flex-basis:calc(33.33% - 9px);height:155px;min-width:95px}
+.notice{color:#aaa;font-size:13px;padding:12px 16px}
+input{outline-color:#ed1724}
 footer{text-align:center;color:#777;padding:25px;font-size:12px}
 </style>
 </head>
 <body>
+
 <header>
 <div class="logo">DF <span>DreamFlix</span></div>
-<button onclick="document.getElementById('search').focus()">⌕</button>
+<button onclick="showPage('search')">⌕</button>
 </header>
 
-<div class="search">
-<input id="search" placeholder="Filme oder Serie suchen..." oninput="searchTitles(this.value)">
+<!-- PROFILAUSWAHL -->
+<div id="profiles" class="page active">
+<div class="profile-screen">
+<h1>Wer schaut gerade?</h1>
+<p>Wähle dein Profil aus ❤️</p>
+<div class="profiles">
+<button class="profile" onclick="enterProfile('Mein Profil',false)">
+<div class="avatar">👤</div>Mein Profil
+</button>
+<button class="profile" onclick="enterProfile('Profil 2',false)">
+<div class="avatar">🦊</div>Profil 2
+</button>
+<button class="profile" onclick="enterProfile('Profil 3',false)">
+<div class="avatar">🐼</div>Profil 3
+</button>
+<button class="profile" onclick="enterProfile('Profil 4',false)">
+<div class="avatar">🌟</div>Profil 4
+</button>
+<button class="profile" onclick="kidsLogin()">
+<div class="avatar kids-avatar">🌈</div>DreamFlix Kids
+</button>
+</div>
+<p class="notice">Profil-Auswahl – Demo-Version</p>
+</div>
 </div>
 
+<!-- STARTSEITE -->
+<div id="home" class="page">
 <div class="hero">
 <small>★ DEIN STREAMING-ERLEBNIS</small>
 <h1>Deine Welt.<br>Deine Filme.</h1>
 <p>Entdecke spannende Geschichten, große Abenteuer und deine neue Lieblingsserie.</p>
-<div class="actions">
-<button class="play" onclick="alert('DreamFlix: Die Wiedergabe kommt bald!')">▶ Entdecken</button>
-<button class="more" onclick="document.getElementById('beliebt').scrollIntoView({behavior:'smooth'})">ⓘ Mehr</button>
+<button class="action play" onclick="showPage('movies')">▶ Filme entdecken</button>
+<button class="action more" onclick="showPage('series')">Serien ansehen</button>
 </div>
-</div>
-
-<section id="beliebt">
+<section>
 <h2>🔥 Beliebt auf DreamFlix</h2>
 <div class="shelf">
 <div class="poster">Das Abenteuer</div>
@@ -71,7 +104,6 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
 <div class="poster">Die Helden</div>
 </div>
 </section>
-
 <section>
 <h2>🎬 Filme entdecken</h2>
 <div class="shelf">
@@ -79,12 +111,34 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
 <div class="poster">Abenteuer</div>
 <div class="poster">Comedy</div>
 <div class="poster">Action</div>
-<div class="poster">Familie</div>
 </div>
 </section>
+<div class="kids-banner">
+<h2>🌈 DreamFlix Kids</h2>
+<p>Eine bunte Welt voller Geschichten und Abenteuer!</p>
+<button class="action play" onclick="kidsLogin()">Kids-Profil öffnen</button>
+</div>
+</div>
 
+<!-- FILME -->
+<div id="movies" class="page">
 <section>
-<h2>📺 Serien für dich</h2>
+<h1>🎬 Filme</h1>
+<p>Entdecke deine nächste Lieblingsgeschichte.</p>
+<div class="shelf">
+<div class="poster">Das Abenteuer</div>
+<div class="poster">Weltraumreise</div>
+<div class="poster">Magische Welt</div>
+<div class="poster">Die Helden</div>
+</div>
+</section>
+</div>
+
+<!-- SERIEN -->
+<div id="series" class="page">
+<section>
+<h1>📺 Serien</h1>
+<p>Neue Geschichten und spannende Abenteuer.</p>
 <div class="shelf">
 <div class="poster">Neue Welten</div>
 <div class="poster">Die Freunde</div>
@@ -92,38 +146,86 @@ footer{text-align:center;color:#777;padding:25px;font-size:12px}
 <div class="poster">Große Reise</div>
 </div>
 </section>
-
-<div class="kids">
-<h2>🌈 DreamFlix Kids</h2>
-<p>Eine bunte Welt voller Geschichten, Tiere und Abenteuer!</p>
-<button onclick="alert('DreamFlix Kids kommt bald!')">Kids entdecken</button>
 </div>
 
+<!-- KIDS -->
+<div id="kids" class="page">
+<div class="kids-banner">
+<h1>🌈 DreamFlix Kids</h1>
+<p>Willkommen in deiner bunten Welt!</p>
+</div>
 <section>
-<h2>⭐ Neu hinzugefügt</h2>
+<h2>🐻 Abenteuer für Kinder</h2>
 <div class="shelf">
-<div class="poster">Sternenlicht</div>
-<div class="poster">Der Zauberwald</div>
-<div class="poster">Abenteuerland</div>
-<div class="poster">Die Entdeckung</div>
+<div class="poster">Tierfreunde</div>
+<div class="poster">Zauberwald</div>
+<div class="poster">Sternenreise</div>
+<div class="poster">Freundschaft</div>
 </div>
 </section>
+</div>
+
+<!-- SUCHE -->
+<div id="search" class="page">
+<div class="search-area">
+<h1>🔍 Suche</h1>
+<p>Finde Filme und Serien auf DreamFlix.</p>
+<input id="searchInput" type="search" placeholder="Titel suchen..." oninput="searchTitles(this.value)">
+</div>
+<div id="searchResults" class="results"></div>
+<p id="emptySearch" class="notice">Gib einen Titel ein, um zu suchen.</p>
+</div>
+
+<!-- MERKLISTE -->
+<div id="watchlist" class="page">
+<section>
+<h1>＋ Meine Merkliste</h1>
+<p>Hier findest du später deine gespeicherten Filme.</p>
+</section>
+</div>
+
+<nav>
+<button onclick="showPage('home')"><span>⌂</span>Startseite</button>
+<button onclick="showPage('movies')"><span>🎬</span>Filme</button>
+<button onclick="showPage('series')"><span>📺</span>Serien</button>
+<button onclick="showPage('kids')"><span>🌈</span>Kids</button>
+<button onclick="showPage('search')"><span>⌕</span>Suche</button>
+<button onclick="showPage('watchlist')"><span>＋</span>Merkliste</button>
+</nav>
 
 <footer>© 2026 DreamFlix · Deine Streaming-Welt</footer>
 
-<nav class="nav">
-<button onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>⌂</span>Start</button>
-<button onclick="document.querySelectorAll('section')[1].scrollIntoView({behavior:'smooth'})"><span>🎬</span>Filme</button>
-<button onclick="document.querySelectorAll('section')[2].scrollIntoView({behavior:'smooth'})"><span>📺</span>Serien</button>
-<button onclick="document.querySelector('.kids').scrollIntoView({behavior:'smooth'})"><span>🌈</span>Kids</button>
-<button onclick="alert('Deine Merkliste kommt bald!')"><span>＋</span>Merkliste</button>
-</nav>
-
 <script>
+let currentProfile = "";
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+window.scrollTo(0,0);
+}
+function enterProfile(name,isKids){
+currentProfile=name;
+showPage(isKids?'kids':'home');
+}
+function kidsLogin(){
+let pin=prompt("Bitte Eltern-PIN eingeben (Demo: 1234).");
+if(pin==="1234"){
+enterProfile("DreamFlix Kids",true);
+}else if(pin!==null){
+alert("Das war leider nicht die richtige PIN.");
+}
+}
 function searchTitles(value){
-document.querySelectorAll('.poster').forEach(p=>{
-p.style.display=p.textContent.toLowerCase().includes(value.toLowerCase())?'flex':'none';
+let results=document.getElementById('searchResults');
+results.innerHTML="";
+let titles=["Das Abenteuer","Weltraumreise","Magische Welt","Geheimnisvolle Insel","Die Helden","Fantasy","Abenteuer","Comedy","Action","Neue Welten","Die Freunde","Geheimnisse","Große Reise","Tierfreunde","Zauberwald","Sternenreise","Freundschaft"];
+let matches=titles.filter(t=>t.toLowerCase().includes(value.toLowerCase()));
+matches.forEach((title,i)=>{
+let card=document.createElement('div');
+card.className='poster';
+card.textContent=title;
+results.appendChild(card);
 });
+document.getElementById('emptySearch').textContent=value?(matches.length?matches.length+" Treffer":"Keine Treffer gefunden"):"Gib einen Titel ein, um zu suchen.";
 }
 </script>
 </body>
