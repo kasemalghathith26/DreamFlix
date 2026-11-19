@@ -1,299 +1,329 @@
 
-import React, { useState } from 'react';
-import {
-  View, Text, ScrollView, TextInput, TouchableOpacity,
-  Image, StyleSheet, SafeAreaView, StatusBar, Alert
-} from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>DreamFlix</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
+header{height:65px;background:#111;display:flex;align-items:center;
+justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:5}
+.logo{font-size:27px;font-weight:900;letter-spacing:1px}
+.logo span{color:#e50914}
+button{cursor:pointer;border:0;border-radius:7px;padding:11px 15px;
+background:#e50914;color:white;font-weight:bold}
+button.secondary{background:#292929}
+nav{display:flex;gap:9px;overflow:auto;padding:13px 5%;background:#111}
+nav button{white-space:nowrap;background:#242424}
+nav button.active{background:#e50914}
+.hero{min-height:350px;padding:65px 7%;display:flex;flex-direction:column;
+justify-content:end;background:linear-gradient(0deg,#090909 3%,transparent 95%),
+url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1400') center/cover}
+.hero h1{font-size:clamp(35px,7vw,65px);margin:0 0 12px}
+.hero p{max-width:470px;color:#ddd;line-height:1.5}
+main{padding:15px 5% 100px}
+h2{font-size:22px;margin:30px 0 15px}
+.search{width:100%;padding:14px;border-radius:8px;background:#202020;
+border:1px solid #444;color:white;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:17px}
+.card{min-width:0;cursor:pointer}
+.poster{height:210px;width:100%;object-fit:cover;border-radius:9px;
+background:#222;display:flex;align-items:center;justify-content:center;
+font-size:35px;font-weight:900;color:#e50914}
+.card h3{font-size:14px;margin:9px 0 5px}
+.muted{color:#aaa;font-size:12px}
+.card button{margin-top:8px;padding:8px;font-size:11px}
+.panel{background:#171717;border:1px solid #303030;padding:18px;
+border-radius:12px;margin:20px 0}
+input,textarea,select{width:100%;padding:13px;margin:7px 0;
+background:#222;color:white;border:1px solid #444;border-radius:7px}
+.modal{position:fixed;inset:0;background:#000e;z-index:10;display:none;
+overflow:auto;padding:25px 5%}
+.modalbox{max-width:650px;margin:30px auto;background:#171717;
+padding:22px;border-radius:13px}
+video{width:100%;background:black;border-radius:9px;margin:12px 0}
+footer{position:fixed;bottom:0;left:0;right:0;background:#151515;
+display:flex;justify-content:space-around;padding:10px 2%;
+border-top:1px solid #333;z-index:4}
+footer button{background:transparent;padding:6px;font-size:11px}
+footer button.active{color:#ff5555}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
 
-const RED = '#E50914';
-const BG = '#090909';
+<header>
+ <div class="logo">DREAM<span>FLIX</span></div>
+ <button class="secondary" onclick="openProfiles()">👤 Profile</button>
+</header>
 
-const movies = [
-  { id: '1', title: 'Dream Adventure', type: 'Film', year: '2026', age: '12+', image: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', description: 'Ein spannendes Abenteuer voller Geheimnisse und Magie.' },
-  { id: '2', title: 'Fantasy World', type: 'Serie', year: '2025', age: '12+', image: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', description: 'Eine fantastische Welt wartet darauf, entdeckt zu werden.' },
-  { id: '3', title: 'The Adventure', type: 'Film', year: '2024', age: '6+', image: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', description: 'Ein Abenteuer für die ganze Familie.' },
-  { id: '4', title: 'Magic Kingdom', type: 'Serie', year: '2025', age: '12+', image: 'https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', description: 'Magie, Freundschaft und große Herausforderungen.' },
-  { id: '5', title: 'Little Heroes', type: 'Film', year: '2025', age: '6+', image: 'https://image.tmdb.org/t/p/w500/2E2WTX0TJEflAged6kzErwqX1kt.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', description: 'Kleine Helden erleben große Geschichten.' },
-  { id: '6', title: 'The Mystery', type: 'Serie', year: '2026', age: '12+', image: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4', description: 'Ein Geheimnis, das alles verändert.' }
+<nav id="nav">
+ <button class="active" onclick="showPage('Startseite',this)">Startseite</button>
+ <button onclick="showPage('Filme',this)">Filme</button>
+ <button onclick="showPage('Serien',this)">Serien</button>
+ <button onclick="showPage('Kids',this)">🌈 Kids</button>
+ <button onclick="showPage('Merkliste',this)">♥ Merkliste</button>
+ <button onclick="showPage('Admin',this)">⚙ Admin</button>
+</nav>
+
+<section class="hero">
+ <div class="muted">WILLKOMMEN BEI DREAMFLIX</div>
+ <h1>Deine Welt. Deine Filme.</h1>
+ <p>Entdecke Filme, Serien und fantastische Geschichten.</p>
+ <button style="width:max-content" onclick="showPage('Filme')">Filme entdecken</button>
+</section>
+
+<main>
+ <input class="search" id="search" placeholder="🔍 Filme und Serien suchen..." oninput="render()">
+ <div id="content"></div>
+</main>
+
+<footer>
+ <button onclick="showPage('Startseite')">⌂<br>Start</button>
+ <button onclick="showPage('Filme')">▣<br>Filme</button>
+ <button onclick="showPage('Serien')">▤<br>Serien</button>
+ <button onclick="showPage('Kids')">🌈<br>Kids</button>
+ <button onclick="showPage('Merkliste')">♥<br>Merkliste</button>
+</footer>
+
+<div class="modal" id="player">
+ <div class="modalbox">
+  <button class="secondary" onclick="closePlayer()">← Zurück</button>
+  <h2 id="playTitle"></h2>
+  <video id="video" controls playsinline></video>
+  <h3>Tonspuren</h3>
+  <select id="audioLanguage"></select>
+  <h3>Untertitel</h3>
+  <select id="subtitleLanguage"></select>
+  <p class="muted">Es werden die für diesen Titel hinterlegten Sprachen angezeigt.
+  Eine Auswahl funktioniert nur, wenn die Videodatei die entsprechenden Ton-
+  oder Untertitelspuren tatsächlich enthält.</p>
+ </div>
+</div>
+
+<div class="modal" id="profiles">
+ <div class="modalbox">
+  <h2>Wer schaut gerade?</h2>
+  <div id="profileList"></div>
+  <button class="secondary" onclick="closeProfiles()">Schließen</button>
+ </div>
+</div>
+
+<script>
+const testVideo =
+"https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+const imageList = [
+"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500",
+"https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500",
+"https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=500",
+"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=500",
+"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=500",
+"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500"
 ];
 
-export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [tab, setTab] = useState('Start');
-  const [selected, setSelected] = useState(null);
-  const [watchlist, setWatchlist] = useState([]);
-  const [query, setQuery] = useState('');
-  const [kids, setKids] = useState(false);
-  const [profile, setProfile] = useState('Mein Profil');
-  const [playing, setPlaying] = useState(false);
+const initialMovies = [
+ {id:1,title:"Big Buck Bunny",type:"Film",category:"Animation",
+  description:"Ein lustiges Animationsabenteuer.",
+  poster:"https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
+  video:testVideo,languages:["Englisch"],subtitles:[],available:true},
+ {id:2,title:"Rapunzel – Neu verföhnt",type:"Film",category:"Märchen",
+  description:"Ein zauberhaftes Märchen.",
+  languages:[],subtitles:[],available:false},
+ {id:3,title:"Miraculous",type:"Serie",category:"Animation",
+  description:"Die Abenteuer von Ladybug und Cat Noir.",
+  languages:[],subtitles:[],available:false},
+ {id:4,title:"Sintel",type:"Film",category:"Fantasy",
+  description:"Ein Fantasy-Abenteuer von Blender.",
+  languages:["Englisch"],subtitles:[],available:false},
+ {id:5,title:"Tears of Steel",type:"Film",category:"Science-Fiction",
+  description:"Ein Science-Fiction-Kurzfilm.",
+  languages:["Englisch"],subtitles:[],available:false},
+ {id:6,title:"Die Eiskönigin",type:"Film",category:"Märchen",
+  description:"Eine Geschichte über Mut und Freundschaft.",
+  languages:[],subtitles:[],available:false},
+ {id:7,title:"Elephants Dream",type:"Film",category:"Animation",
+  description:"Ein experimenteller Animationsfilm.",
+  languages:["Englisch"],subtitles:[],available:false},
+ {id:8,title:"Spring",type:"Film",category:"Fantasy",
+  description:"Ein fantastisches Animationsabenteuer.",
+  languages:["Englisch"],subtitles:[],available:false},
+ {id:9,title:"Sprite Fright",type:"Film",category:"Animation",
+  description:"Ein animiertes Abenteuer.",
+  languages:["Englisch"],subtitles:[],available:false},
+ {id:10,title:"Cinderella",type:"Film",category:"Märchen",
+  description:"Ein klassisches Märchen.",
+  languages:[],subtitles:[],available:false},
+ {id:11,title:"Encanto",type:"Film",category:"Animation",
+  description:"Eine magische Familie.",
+  languages:[],subtitles:[],available:false},
+ {id:12,title:"Zoomania",type:"Film",category:"Animation",
+  description:"Ein Abenteuer in einer Tierstadt.",
+  languages:[],subtitles:[],available:false},
+ {id:13,title:"Winx Club",type:"Serie",category:"Fantasy",
+  description:"Magische Feen und Abenteuer.",
+  languages:[],subtitles:[],available:false},
+ {id:14,title:"Pokémon",type:"Serie",category:"Animation",
+  description:"Eine Welt voller Pokémon.",
+  languages:[],subtitles:[],available:false},
+ {id:15,title:"Avatar – Der Herr der Elemente",type:"Serie",
+  category:"Fantasy",description:"Ein Abenteuer in einer magischen Welt.",
+  languages:[],subtitles:[],available:false},
+ {id:16,title:"SpongeBob Schwammkopf",type:"Serie",
+  category:"Animation",description:"Abenteuer unter dem Meer.",
+  languages:[],subtitles:[],available:false}
+];
 
-  const openMovie = (movie) => {
-    setSelected(movie);
-    setPlaying(false);
-  };
+let movies = JSON.parse(localStorage.getItem("dreamflix_movies") || "null") || initialMovies;
+let watchlist = JSON.parse(localStorage.getItem("dreamflix_watchlist") || "[]");
+let currentPage = "Startseite";
+let currentProfile = "Kasem";
 
-  const toggleSaved = (movie) => {
-    setWatchlist(old =>
-      old.some(item => item.id === movie.id)
-        ? old.filter(item => item.id !== movie.id)
-        : [...old, movie]
-    );
-  };
-
-  const visibleMovies = movies.filter(movie => {
-    const matchesSearch = movie.title.toLowerCase().includes(query.toLowerCase());
-    const matchesKids = !kids || movie.age === '6+';
-    const matchesTab =
-      tab === 'Filme' ? movie.type === 'Film' :
-      tab === 'Serien' ? movie.type === 'Serie' : true;
-    return matchesSearch && matchesKids && matchesTab;
-  });
-
-  const poster = (movie, width = 125) => (
-    <TouchableOpacity
-      key={movie.id}
-      style={{ width, marginRight: 12 }}
-      onPress={() => openMovie(movie)}
-    >
-      <Image source={{ uri: movie.image }} style={styles.poster} />
-      <Text style={styles.posterTitle} numberOfLines={1}>{movie.title}</Text>
-      <Text style={styles.small}>{movie.type} · {movie.age}</Text>
-    </TouchableOpacity>
-  );
-
-  if (!loggedIn) {
-    return (
-      <SafeAreaView style={styles.login}>
-        <StatusBar barStyle="light-content" />
-        <Text style={styles.logo}>D<Text style={{ color: RED }}>F</Text></Text>
-        <Text style={styles.brand}>DREAMFLIX</Text>
-        <Text style={styles.tagline}>Deine Welt. Deine Filme.</Text>
-        <View style={styles.loginBox}>
-          <Text style={styles.heading}>Willkommen zurück!</Text>
-          <Text style={styles.label}>E-Mail-Adresse</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Deine E-Mail"
-            placeholderTextColor="#888"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Text style={styles.label}>Passwort</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Dein Passwort"
-            placeholderTextColor="#888"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity
-            style={styles.redButton}
-            onPress={() => {
-              if (!email.includes('@') || password.length < 4) {
-                Alert.alert('Bitte prüfen', 'Gib eine gültige E-Mail und ein Passwort mit mindestens 4 Zeichen ein.');
-              } else {
-                setLoggedIn(true);
-              }
-            }}
-          >
-            <Text style={styles.buttonText}>ANMELDEN</Text>
-          </TouchableOpacity>
-          <Text style={styles.smallCenter}>
-            Demo-Anmeldung: Noch kein echtes Benutzerkonto oder Passwortsystem.
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (selected) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <ScrollView>
-          <TouchableOpacity style={styles.back} onPress={() => setSelected(null)}>
-            <Text style={styles.backText}>‹  Zurück</Text>
-          </TouchableOpacity>
-          {playing ? (
-            <Video
-              source={{ uri: selected.video }}
-              style={styles.video}
-              useNativeControls
-              resizeMode={ResizeMode.CONTAIN}
-              shouldPlay
-              onError={() => Alert.alert('Video', 'Das Beispielvideo konnte nicht geladen werden.')}
-            />
-          ) : (
-            <Image source={{ uri: selected.image }} style={styles.detailImage} />
-          )}
-          <View style={styles.content}>
-            <Text style={styles.detailTitle}>{selected.title}</Text>
-            <Text style={styles.small}>{selected.year}  ·  {selected.type}  ·  {selected.age}</Text>
-            <Text style={styles.description}>{selected.description}</Text>
-            <TouchableOpacity style={styles.redButton} onPress={() => setPlaying(true)}>
-              <Text style={styles.buttonText}>▶  JETZT ABSPIELEN</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.outlineButton} onPress={() => toggleSaved(selected)}>
-              <Text style={styles.buttonText}>
-                {watchlist.some(item => item.id === selected.id) ? '✓ In Merkliste' : '+ Zur Merkliste'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.header}>
-        <Text style={styles.headerLogo}>DREAM<Text style={{ color: RED }}>FLIX</Text></Text>
-        <TouchableOpacity onPress={() => { setKids(!kids); setTab('Start'); }}>
-          <Text style={styles.kidsButton}>{kids ? '🌈 Kids AN' : '🌈 Kids'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={{ paddingBottom: 25 }}>
-        {tab === 'Start' && (
-          <View style={styles.hero}>
-            <Text style={styles.heroOverline}>EXKLUSIV AUF DREAMFLIX</Text>
-            <Text style={styles.heroTitle}>{kids ? 'DREAMFLIX KIDS' : 'DEIN NÄCHSTES ABENTEUER'}</Text>
-            <Text style={styles.heroDescription}>Entdecke Filme und Serien für deine nächste Lieblingsgeschichte.</Text>
-            <TouchableOpacity style={styles.redButton} onPress={() => openMovie(visibleMovies[0] || movies[0])}>
-              <Text style={styles.buttonText}>▶  ENTDECKEN</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {tab === 'Suche' && (
-          <View style={styles.searchArea}>
-            <Text style={styles.heading}>Suche</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Filme und Serien suchen ..."
-              placeholderTextColor="#888"
-              value={query}
-              onChangeText={setQuery}
-            />
-          </View>
-        )}
-
-        {tab === 'Merkliste' && (
-          <Text style={styles.heading}>Meine Merkliste</Text>
-        )}
-
-        {tab === 'Profil' && (
-          <View style={styles.profileArea}>
-            <Text style={styles.heading}>Profile</Text>
-            {['Mein Profil', 'Profil 2', 'Profil 3', 'Profil 4'].map(name => (
-              <TouchableOpacity key={name} style={styles.profileRow} onPress={() => setProfile(name)}>
-                <Text style={styles.profileAvatar}>👤</Text>
-                <Text style={styles.profileName}>{name}</Text>
-                <Text style={{ color: RED }}>{profile === name ? '✓' : '›'}</Text>
-              </TouchableOpacity>
-            ))}
-            <Text style={styles.small}>Aktiv: {profile}</Text>
-            <TouchableOpacity style={styles.outlineButton} onPress={() => setLoggedIn(false)}>
-              <Text style={styles.buttonText}>ABMELDEN</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {tab !== 'Profil' && (
-          <>
-            {tab === 'Start' && (
-              <Text style={styles.sectionTitle}>Beliebt auf DreamFlix</Text>
-            )}
-            {tab === 'Filme' && <Text style={styles.sectionTitle}>Alle Filme</Text>}
-            {tab === 'Serien' && <Text style={styles.sectionTitle}>Alle Serien</Text>}
-            {tab === 'Merkliste' && null}
-            {tab === 'Suche' && null}
-            {tab === 'Start' && (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
-                {visibleMovies.map(movie => poster(movie))}
-              </ScrollView>
-            )}
-            {tab === 'Start' && (
-              <Text style={styles.sectionTitle}>Das könnte dir gefallen</Text>
-            )}
-            {(tab !== 'Start' ? (tab === 'Merkliste' ? watchlist : visibleMovies) : visibleMovies).length === 0 && (
-              <Text style={styles.empty}>Hier ist noch nichts zu sehen.</Text>
-            )}
-            <View style={styles.grid}>
-              {(tab === 'Start' ? visibleMovies : tab === 'Merkliste' ? watchlist : visibleMovies)
-                .map(movie => poster(movie, 145))}
-            </View>
-          </>
-        )}
-      </ScrollView>
-
-      <View style={styles.nav}>
-        {[
-          ['⌂', 'Start'], ['▣', 'Filme'], ['▤', 'Serien'],
-          ['⌕', 'Suche'], ['♡', 'Merkliste'], ['☺', 'Profil']
-        ].map(([symbol, name]) => (
-          <TouchableOpacity key={name} style={styles.navItem} onPress={() => {
-            setTab(name);
-            setQuery('');
-          }}>
-            <Text style={[styles.navSymbol, tab === name && { color: RED }]}>{symbol}</Text>
-            <Text style={[styles.navLabel, tab === name && { color: RED }]}>{name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </SafeAreaView>
-  );
+function save(){
+ localStorage.setItem("dreamflix_movies",JSON.stringify(movies));
+ localStorage.setItem("dreamflix_watchlist",JSON.stringify(watchlist));
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG },
-  login: { flex: 1, backgroundColor: BG, justifyContent: 'center', padding: 25 },
-  logo: { color: 'white', fontSize: 90, fontWeight: '900', textAlign: 'center' },
-  brand: { color: 'white', fontSize: 27, fontWeight: '900', textAlign: 'center', letterSpacing: 5 },
-  tagline: { color: '#aaa', textAlign: 'center', marginTop: 8, marginBottom: 35 },
-  loginBox: { backgroundColor: '#171717', padding: 22, borderRadius: 16 },
-  heading: { color: 'white', fontSize: 23, fontWeight: 'bold', marginBottom: 18 },
-  label: { color: '#ddd', marginBottom: 8, marginTop: 12 },
-  input: { backgroundColor: '#292929', color: 'white', padding: 15, borderRadius: 9, marginBottom: 12 },
-  redButton: { backgroundColor: RED, padding: 16, borderRadius: 9, alignItems: 'center', marginTop: 14 },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
-  smallCenter: { color: '#888', fontSize: 11, textAlign: 'center', marginTop: 18 },
-  header: { height: 60, paddingHorizontal: 17, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerLogo: { color: 'white', fontWeight: '900', fontSize: 23, letterSpacing: 1 },
-  kidsButton: { color: 'white', backgroundColor: '#292929', padding: 9, borderRadius: 8 },
-  hero: { minHeight: 260, backgroundColor: '#321014', justifyContent: 'center', padding: 23 },
-  heroOverline: { color: '#ff7777', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 },
-  heroTitle: { color: 'white', fontSize: 31, fontWeight: '900', marginTop: 12 },
-  heroDescription: { color: '#ddd', marginTop: 10, lineHeight: 21 },
-  sectionTitle: { color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 16, marginTop: 23, marginBottom: 13 },
-  row: { paddingLeft: 15 },
-  poster: { width: '100%', height: 185, borderRadius: 8, backgroundColor: '#292929' },
-  posterTitle: { color: 'white', fontWeight: 'bold', marginTop: 7 },
-  small: { color: '#999', fontSize: 12, marginTop: 4 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 15, justifyContent: 'flex-start' },
-  empty: { color: '#aaa', textAlign: 'center', margin: 30 },
-  nav: { flexDirection: 'row', backgroundColor: '#151515', borderTopWidth: 1, borderTopColor: '#333', paddingTop: 9, paddingBottom: 5, justifyContent: 'space-around' },
-  navItem: { alignItems: 'center', flex: 1 },
-  navSymbol: { color: '#aaa', fontSize: 22 },
-  navLabel: { color: '#aaa', fontSize: 9, marginTop: 3 },
-  searchArea: { padding: 17 },
-  back: { padding: 16 },
-  backText: { color: 'white', fontSize: 17 },
-  detailImage: { width: '100%', height: 300, resizeMode: 'cover' },
-  video: { width: '100%', height: 260, backgroundColor: 'black' },
-  content: { padding: 20 },
-  detailTitle: { color: 'white', fontSize: 28, fontWeight: '900' },
-  description: { color: '#ddd', fontSize: 15, lineHeight: 23, marginTop: 18 },
-  outlineButton: { borderWidth: 1, borderColor: '#777', padding: 15, borderRadius: 9, alignItems: 'center', marginTop: 12 },
-  profileArea: { padding: 20 },
-  profileRow: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#202020', marginBottom: 10, borderRadius: 10 },
-  profileAvatar: { fontSize: 27, marginRight: 15 },
-  profileName: { color: 'white', fontSize: 16, flex: 1 }
-});
+function showPage(page,button){
+ currentPage=page;
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ render();
+ window.scrollTo(0,0);
+}
+
+function render(){
+ const query=document.getElementById("search").value.toLowerCase();
+ let list=movies.filter(m=>m.title.toLowerCase().includes(query));
+ if(currentPage==="Filme")list=list.filter(m=>m.type==="Film");
+ if(currentPage==="Serien")list=list.filter(m=>m.type==="Serie");
+ if(currentPage==="Kids")list=list.filter(m=>["Animation","Märchen"].includes(m.category));
+ if(currentPage==="Merkliste")list=list.filter(m=>watchlist.includes(m.id));
+
+ let html="";
+ if(currentPage==="Admin"){
+  html=`<div class="panel">
+  <h2>🔐 DreamFlix Admin</h2>
+  <p class="muted">Demo-PIN: 2468. Vor echter Veröffentlichung muss eine sichere Anmeldung eingerichtet werden.</p>
+  <input id="adminPin" type="password" placeholder="Admin-PIN">
+  <button onclick="loginAdmin()">Admin öffnen</button>
+  <div id="adminForm" class="hidden">
+   <h2>Neuen Film oder Serie hinzufügen</h2>
+   <input id="newTitle" placeholder="Titel">
+   <select id="newType"><option>Film</option><option>Serie</option></select>
+   <input id="newCategory" placeholder="Kategorie">
+   <input id="newPoster" placeholder="Poster-Bild URL">
+   <input id="newVideo" placeholder="Video URL">
+   <input id="newLanguages" placeholder="Vorhandene Sprachen, z.B. Deutsch,Russisch">
+   <input id="newSubtitles" placeholder="Untertitel, z.B. Deutsch,Englisch">
+   <textarea id="newDescription" placeholder="Beschreibung"></textarea>
+   <button onclick="addTitle()">Titel speichern</button>
+   <h3>Vorhandene Titel</h3>
+   <div id="adminTitles"></div>
+  </div></div>`;
+ }else{
+  html=`<h2>${currentPage==="Startseite"?"⭐ Für dich":currentPage}</h2><div class="grid">`;
+  list.forEach(m=>{
+   let poster=m.poster || imageList[m.id%imageList.length];
+   html+=`<div class="card">
+    <img class="poster" src="${safe(poster)}" alt="${safe(m.title)}"
+     onerror="this.outerHTML='<div class=&quot;poster&quot;>DF</div>'">
+    <h3>${safe(m.title)}</h3>
+    <div class="muted">${safe(m.type)} · ${safe(m.category)}</div>
+    <button onclick="playTitle(${m.id})">${m.available&&m.video?"▶ Abspielen":"Details"}</button>
+    <button class="secondary" onclick="toggleSave(${m.id})">♥</button>
+   </div>`;
+  });
+  html+="</div>";
+  if(!list.length)html+="<p class='muted'>Keine Titel gefunden.</p>";
+  if(currentPage==="Startseite"){
+   html+=`<h2>🎬 Alle Titel</h2><p class="muted">Neue Filme und Serien werden hier angezeigt.</p>`;
+  }
+ }
+ document.getElementById("content").innerHTML=html;
+}
+
+function safe(s){
+ return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function toggleSave(id){
+ watchlist=watchlist.includes(id)?watchlist.filter(x=>x!==id):[...watchlist,id];
+ save();render();
+}
+
+function playTitle(id){
+ const m=movies.find(x=>x.id===id);
+ if(!m.available||!m.video){
+  alert("Dieser Titel ist vorgemerkt, aber noch nicht abspielbar. Wir benötigen eine legale Videodatei und die nötigen Rechte.");
+  return;
+ }
+ document.getElementById("playTitle").textContent=m.title;
+ const v=document.getElementById("video");
+ v.src=m.video;v.load();
+ document.getElementById("audioLanguage").innerHTML=
+  (m.languages||[]).map(x=>`<option>${safe(x)}</option>`).join("")||"<option>Keine Angaben</option>";
+ document.getElementById("subtitleLanguage").innerHTML=
+  "<option>Aus</option>"+(m.subtitles||[]).map(x=>`<option>${safe(x)}</option>`).join("");
+ document.getElementById("player").style.display="block";
+}
+
+function closePlayer(){
+ document.getElementById("video").pause();
+ document.getElementById("video").removeAttribute("src");
+ document.getElementById("player").style.display="none";
+}
+
+function loginAdmin(){
+ if(document.getElementById("adminPin").value!=="2468"){
+  alert("Falsche PIN.");return;
+ }
+ document.getElementById("adminForm").classList.remove("hidden");
+ document.getElementById("adminTitles").innerHTML=movies.map(m=>
+  `<p>${safe(m.title)} <button onclick="deleteTitle(${m.id})">Löschen</button></p>`
+ ).join("");
+}
+
+function addTitle(){
+ const title=document.getElementById("newTitle").value.trim();
+ const video=document.getElementById("newVideo").value.trim();
+ if(!title){alert("Bitte einen Titel eingeben.");return}
+ const m={
+  id:Date.now(),title,
+  type:document.getElementById("newType").value,
+  category:document.getElementById("newCategory").value||"Neu",
+  poster:document.getElementById("newPoster").value,
+  video,
+  languages:document.getElementById("newLanguages").value.split(",").map(x=>x.trim()).filter(Boolean),
+  subtitles:document.getElementById("newSubtitles").value.split(",").map(x=>x.trim()).filter(Boolean),
+  description:document.getElementById("newDescription").value,
+  available:!!video
+ };
+ movies.unshift(m);save();render();
+ alert("Titel wurde gespeichert.");
+}
+
+function deleteTitle(id){
+ if(!confirm("Titel wirklich löschen?"))return;
+ movies=movies.filter(m=>m.id!==id);save();render();
+}
+
+function openProfiles(){
+ document.getElementById("profileList").innerHTML=
+ ["Kasem","Profil 2","Profil 3","DreamFlix Kids"].map(p=>
+ `<p><button onclick="currentProfile='${p}';closeProfiles()">${p}</button></p>`
+ ).join("");
+ document.getElementById("profiles").style.display="block";
+}
+
+function closeProfiles(){
+ document.getElementById("profiles").style.display="none";
+}
+
+render();
+</script>
+</body>
+</html>
