@@ -1,109 +1,394 @@
 
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DreamFlix Player</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
-header{padding:18px;background:#171717;color:#ff3030;font-size:25px;font-weight:bold}
-main{max-width:850px;margin:auto;padding:16px}
-video{width:100%;background:black;border-radius:12px}
-h2{margin-top:25px}
-.settings{background:#1c1c1c;padding:18px;border-radius:14px;margin-top:15px}
-label{display:block;margin:15px 0 7px;font-weight:bold}
-select,button{width:100%;padding:13px;border-radius:8px;border:0;font-size:15px}
-select{background:#303030;color:white}
-button{background:#e50914;color:white;margin-top:12px;font-weight:bold}
-.note{color:#aaa;font-size:13px;line-height:1.5}
-</style>
-</head>
-<body>
-<header> DREAMFLIX</header>
-<main>
-<h1 id="filmTitle">DreamFlix Player</h1>
+import React, { useState } from "react";
+import {
+  View, Text, TextInput, ScrollView, Pressable,
+  Image, StyleSheet, SafeAreaView, Alert
+} from "react-native";
+import { Video, ResizeMode } from "expo-av";
 
-<video id="player" controls playsinline>
-  <!-- Hier eine rechtmäßig nutzbare Videodatei eintragen -->
-</video>
+const STARTER_MOVIES = [
+  {
+    id: "1",
+    title: "Big Buck Bunny",
+    type: "Film",
+    category: "Animation",
+    description: "Ein lustiges Animationsabenteuer.",
+    poster: "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
+    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    languages: ["Englisch"],
+    subtitles: [],
+    available: true
+  },
+  {
+    id: "2",
+    title: "Rapunzel – Neu verföhnt",
+    type: "Film",
+    category: "Märchen",
+    description: "Ein märchenhaftes Abenteuer.",
+    poster: "",
+    url: "",
+    languages: [],
+    subtitles: [],
+    available: false
+  },
+  {
+    id: "3",
+    title: "Miraculous",
+    type: "Serie",
+    category: "Animation",
+    description: "Die Abenteuer von Ladybug und Cat Noir.",
+    poster: "",
+    url: "",
+    languages: [],
+    subtitles: [],
+    available: false
+  },
+  {
+    id: "4",
+    title: "Sintel",
+    type: "Film",
+    category: "Fantasy",
+    description: "Ein fantastisches Animationsabenteuer.",
+    poster: "",
+    url: "",
+    languages: [],
+    subtitles: [],
+    available: false
+  },
+  {
+    id: "5",
+    title: "Die Eiskönigin",
+    type: "Film",
+    category: "Märchen",
+    description: "Eine Geschichte über Liebe und Mut.",
+    poster: "",
+    url: "",
+    languages: [],
+    subtitles: [],
+    available: false
+  }
+];
 
-<div class="settings">
-<h2>⚙️ Wiedergabeeinstellungen</h2>
+const C = {
+  bg: "#090909",
+  panel: "#191919",
+  red: "#e50914",
+  white: "#ffffff",
+  muted: "#aaaaaa",
+  green: "#43c77a"
+};
 
-<label>🌍 Audio / Sprache</label>
-<select id="audio">
-<option value="">Originalton / Standard</option>
-</select>
+export default function App() {
+  const [movies, setMovies] = useState(STARTER_MOVIES);
+  const [page, setPage] = useState("Startseite");
+  const [selected, setSelected] = useState(null);
+  const [watchlist, setWatchlist] = useState([]);
+  const [profile, setProfile] = useState("");
+  const [search, setSearch] = useState("");
+  const [admin, setAdmin] = useState(false);
+  const [pin, setPin] = useState("");
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const [poster, setPoster] = useState("");
+  const [languages, setLanguages] = useState("");
+  const [description, setDescription] = useState("");
+  const [quality, setQuality] = useState("Automatisch");
 
-<label>💬 Untertitel</label>
-<select id="subtitles">
-<option value="-1">Aus</option>
-</select>
+  const playable = movies.filter(m => m.available && m.url);
 
-<label>🎥 Videoqualität</label>
-<select id="quality">
-<option value="auto">Automatisch – beste verfügbare</option>
-<option value="2160">4K Ultra HD (2160p)</option>
-<option value="1080">Full HD (1080p)</option>
-<option value="720">HD (720p)</option>
-</select>
+  function openMovie(movie) {
+    if (!movie.available || !movie.url) {
+      Alert.alert(
+        "Noch nicht verfügbar",
+        "Dieser Titel ist vorgemerkt. Er benötigt noch eine Videodatei und die erforderlichen Nutzungsrechte."
+      );
+      return;
+    }
+    setSelected(movie);
+  }
 
-<button onclick="applySettings()">Einstellungen übernehmen</button>
-<p class="note" id="status">
-Die verfügbaren Sprachen und Qualitätsstufen hängen von der Videodatei ab.
-</p>
-</div>
-</main>
+  function toggleWatchlist(movie) {
+    setWatchlist(old =>
+      old.some(x => x.id === movie.id)
+        ? old.filter(x => x.id !== movie.id)
+        : [...old, movie]
+    );
+  }
 
-<script>
-const video=document.getElementById("player");
-const audio=document.getElementById("audio");
-const subtitles=document.getElementById("subtitles");
-const quality=document.getElementById("quality");
-const status=document.getElementById("status");
+  function addMovie() {
+    if (!title.trim() || !url.trim()) {
+      Alert.alert("Angaben fehlen", "Bitte Titel und Video-Adresse eingeben.");
+      return;
+    }
 
-function loadTracks(){
- audio.innerHTML='<option value="">Originalton / Standard</option>';
- subtitles.innerHTML='<option value="-1">Aus</option>';
+    const newMovie = {
+      id: String(Date.now()),
+      title: title.trim(),
+      type: "Film",
+      category: "Neu",
+      description,
+      poster,
+      url,
+      languages: languages.split(",").map(x => x.trim()).filter(Boolean),
+      subtitles: [],
+      available: true
+    };
 
- for(let i=0;i<video.audioTracks?.length;i++){
-   const track=video.audioTracks[i];
-   const option=document.createElement("option");
-   option.value=i;
-   option.textContent=track.label||track.language||"Audiospur "+(i+1);
-   audio.appendChild(option);
- }
- for(let i=0;i<video.textTracks.length;i++){
-   const track=video.textTracks[i];
-   const option=document.createElement("option");
-   option.value=i;
-   option.textContent=track.label||track.language||"Untertitel "+(i+1);
-   subtitles.appendChild(option);
- }
+    setMovies(old => [newMovie, ...old]);
+    setTitle("");
+    setUrl("");
+    setPoster("");
+    setLanguages("");
+    setDescription("");
+    Alert.alert("Hinzugefügt", "Der Titel wurde in diesen App-Prototyp aufgenommen.");
+  }
+
+  const visibleMovies = movies.filter(m => {
+    const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase());
+    if (page === "Filme") return matchesSearch && m.type === "Film";
+    if (page === "Serien") return matchesSearch && m.type === "Serie";
+    if (page === "Merkliste") return watchlist.some(x => x.id === m.id);
+    if (page === "Kids") return matchesSearch && ["Animation", "Märchen"].includes(m.category);
+    return matchesSearch;
+  });
+
+  function Header() {
+    return (
+      <View style={styles.header}>
+        <Text style={styles.logo}>D<Text style={{color:C.red}}>F</Text></Text>
+        <Text style={styles.brand}>DREAMFLIX</Text>
+        <Pressable onPress={() => setPage("Einstellungen")}>
+          <Text style={styles.headerIcon}>⚙️</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  function MovieCard({ movie }) {
+    return (
+      <Pressable style={styles.movieCard} onPress={() => openMovie(movie)}>
+        {movie.poster ? (
+          <Image source={{uri:movie.poster}} style={styles.poster} />
+        ) : (
+          <View style={[styles.poster, styles.posterPlaceholder]}>
+            <Text style={styles.posterLogo}>DF</Text>
+          </View>
+        )}
+        <Text style={styles.movieTitle} numberOfLines={2}>{movie.title}</Text>
+        <Text style={styles.smallText}>
+          {movie.available ? "▶ Abspielen" : "Noch nicht verfügbar"}
+        </Text>
+        <Pressable onPress={() => toggleWatchlist(movie)}>
+          <Text style={styles.linkText}>
+            {watchlist.some(x => x.id === movie.id) ? "♥ Gemerkt" : "+ Merkliste"}
+          </Text>
+        </Pressable>
+      </Pressable>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.center}>
+          <Text style={styles.logoLarge}>D<Text style={{color:C.red}}>F</Text></Text>
+          <Text style={styles.bigTitle}>Wer schaut gerade?</Text>
+          {["Kasem", "Profil 2", "Profil 3", "DreamFlix Kids"].map(name => (
+            <Pressable key={name} style={styles.profileButton}
+              onPress={() => setProfile(name)}>
+              <Text style={styles.profileText}>
+                {name === "DreamFlix Kids" ? "🌈 " : "👤 "}{name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (selected) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <Pressable onPress={() => setSelected(null)} style={styles.back}>
+            <Text style={styles.linkText}>‹ Zurück zu DreamFlix</Text>
+          </Pressable>
+          <Text style={styles.bigTitle}>{selected.title}</Text>
+          <Video
+            source={{uri:selected.url}}
+            style={styles.video}
+            useNativeControls
+            resizeMode={ResizeMode.CONTAIN}
+            shouldPlay
+            isLooping={false}
+          />
+          <Text style={styles.sectionTitle}>Audio und Sprachen</Text>
+          {selected.languages.length ? selected.languages.map(lang => (
+            <Text key={lang} style={styles.option}>🔊 {lang}</Text>
+          )) : <Text style={styles.smallText}>Keine Sprachinformationen hinterlegt.</Text>}
+          <Text style={styles.sectionTitle}>Untertitel</Text>
+          {selected.subtitles.length ? selected.subtitles.map(lang => (
+            <Text key={lang} style={styles.option}>CC {lang}</Text>
+          )) : <Text style={styles.smallText}>Keine Untertitel hinterlegt.</Text>}
+          <Text style={styles.sectionTitle}>Videoqualität</Text>
+          {["Automatisch", "1080p", "720p", "480p"].map(q => (
+            <Pressable key={q} onPress={() => setQuality(q)}
+              style={[styles.optionButton, quality === q && styles.activeOption]}>
+              <Text style={styles.whiteText}>{q}{quality === q ? " ✓" : ""}</Text>
+            </Pressable>
+          ))}
+          <Text style={styles.smallText}>
+            Die Qualität wird erst tatsächlich umgeschaltet, wenn passende Videovarianten bereitgestellt sind.
+            Die Sprachliste zeigt die hinterlegten Tonspuren; die Auswahl einzelner Tonspuren benötigt noch die passende Player-Integration.
+          </Text>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Header />
+      <ScrollView contentContainerStyle={{paddingBottom:30}}>
+        <View style={styles.welcome}>
+          <Text style={styles.redLabel}>DEIN STREAMING-ZUHAUSE</Text>
+          <Text style={styles.heroTitle}>Filme. Serien. Deine Welt.</Text>
+          <Text style={styles.smallText}>Hallo {profile} 👋</Text>
+        </View>
+
+        <TextInput
+          style={styles.input}
+          placeholder="🔍 Filme und Serien suchen..."
+          placeholderTextColor={C.muted}
+          value={search}
+          onChangeText={setSearch}
+        />
+
+        {page === "Admin" ? (
+          <View style={styles.form}>
+            <Text style={styles.sectionTitle}>DreamFlix Admin</Text>
+            {!admin ? (
+              <>
+                <Text style={styles.smallText}>Demo-Admin-PIN: 2468 (später durch sichere Anmeldung ersetzen)</Text>
+                <TextInput style={styles.input} placeholder="Admin-PIN"
+                  placeholderTextColor={C.muted} value={pin}
+                  onChangeText={setPin} secureTextEntry />
+                <Pressable style={styles.redButton} onPress={() => {
+                  if (pin === "2468") setAdmin(true);
+                  else Alert.alert("Falsche PIN", "Bitte erneut versuchen.");
+                }}>
+                  <Text style={styles.whiteText}>Admin öffnen</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={styles.smallText}>Neuen Film hinzufügen</Text>
+                <TextInput style={styles.input} placeholder="Filmtitel"
+                  placeholderTextColor={C.muted} value={title} onChangeText={setTitle}/>
+                <TextInput style={styles.input} placeholder="Video-Adresse (URL)"
+                  placeholderTextColor={C.muted} value={url} onChangeText={setUrl}/>
+                <TextInput style={styles.input} placeholder="Poster-Adresse (URL)"
+                  placeholderTextColor={C.muted} value={poster} onChangeText={setPoster}/>
+                <TextInput style={styles.input} placeholder="Sprachen, z.B. Deutsch, Arabisch"
+                  placeholderTextColor={C.muted} value={languages} onChangeText={setLanguages}/>
+                <TextInput style={styles.input} placeholder="Beschreibung"
+                  placeholderTextColor={C.muted} value={description} onChangeText={setDescription}/>
+                <Pressable style={styles.redButton} onPress={addMovie}>
+                  <Text style={styles.whiteText}>＋ Film speichern</Text>
+                </Pressable>
+                <Text style={styles.smallText}>
+                  Änderungen sind in diesem Prototyp zunächst nur während der laufenden Sitzung gespeichert.
+                </Text>
+              </>
+            )}
+          </View>
+        ) : page === "Einstellungen" ? (
+          <View style={styles.form}>
+            <Text style={styles.sectionTitle}>Einstellungen</Text>
+            <Text style={styles.option}>Aktives Profil: {profile}</Text>
+            <Pressable style={styles.redButton} onPress={() => {
+              setProfile(""); setPage("Startseite"); setSelected(null);
+            }}>
+              <Text style={styles.whiteText}>Profil wechseln</Text>
+            </Pressable>
+            <Pressable style={styles.optionButton} onPress={() => setPage("Admin")}>
+              <Text style={styles.whiteText}>Admin-Bereich öffnen</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.sectionTitle}>
+              {page === "Startseite" ? "⭐ Für dich" : page}
+            </Text>
+            <View style={styles.movieGrid}>
+              {visibleMovies.map(movie => <MovieCard key={movie.id} movie={movie}/>)}
+            </View>
+            {visibleMovies.length === 0 && (
+              <Text style={styles.smallText}>Keine Titel gefunden.</Text>
+            )}
+            {page === "Startseite" && (
+              <>
+                <Text style={styles.sectionTitle}>🎬 Alle Filme und Serien</Text>
+                <View style={styles.movieGrid}>
+                  {movies.map(movie => <MovieCard key={movie.id} movie={movie}/>)}
+                </View>
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+
+      <View style={styles.nav}>
+        {["Startseite", "Filme", "Serien", "Kids", "Merkliste", "Admin"].map(item => (
+          <Pressable key={item} style={styles.navItem} onPress={() => {
+            setPage(item); setSearch("");
+          }}>
+            <Text style={[styles.navText, page === item && styles.navActive]}>
+              {({Startseite:"⌂", Filme:"▣", Serien:"▤", Kids:"🌈", Merkliste:"♥", Admin:"⚙"})[item]}
+            </Text>
+            <Text style={[styles.navLabel, page === item && styles.navActive]}>{item}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </SafeAreaView>
+  );
 }
 
-function applySettings(){
- const selectedAudio=audio.value;
- if(video.audioTracks && selectedAudio!==""){
-   for(let i=0;i<video.audioTracks.length;i++){
-     video.audioTracks[i].enabled=(i===Number(selectedAudio));
-   }
- }
- for(let i=0;i<video.textTracks.length;i++){
-   video.textTracks[i].mode=
-     (selectedAudio!=="" && i===Number(subtitles.value))
-       ?"showing":"disabled";
- }
- if(subtitles.value!=="-1"){
-   const track=video.textTracks[Number(subtitles.value)];
-   if(track)track.mode="showing";
- }
- status.textContent="Einstellungen übernommen, soweit die Videodatei sie unterstützt.";
-}
-
-video.addEventListener("loadedmetadata",loadTracks);
-</script>
-</body>
-</html>
+const styles = StyleSheet.create({
+  container:{flex:1,backgroundColor:C.bg},
+  header:{height:58,flexDirection:"row",alignItems:"center",paddingHorizontal:18,borderBottomWidth:1,borderColor:"#292929"},
+  logo:{fontSize:32,fontWeight:"900",color:C.white},
+  brand:{color:C.white,fontWeight:"900",letterSpacing:3,marginLeft:10,flex:1},
+  headerIcon:{fontSize:22},
+  center:{flex:1,justifyContent:"center",alignItems:"center",padding:24},
+  logoLarge:{fontSize:76,fontWeight:"900",color:C.white},
+  bigTitle:{fontSize:25,fontWeight:"900",color:C.white,margin:18},
+  profileButton:{backgroundColor:C.panel,padding:18,borderRadius:12,width:"100%",marginVertical:6},
+  profileText:{color:C.white,fontSize:17,textAlign:"center"},
+  welcome:{padding:22,minHeight:150,justifyContent:"center"},
+  redLabel:{color:C.red,fontWeight:"900",letterSpacing:2},
+  heroTitle:{fontSize:29,fontWeight:"900",color:C.white,marginVertical:8},
+  sectionTitle:{fontSize:21,fontWeight:"900",color:C.white,margin:18},
+  smallText:{color:C.muted,fontSize:12,marginTop:6},
+  input:{backgroundColor:C.panel,color:C.white,padding:14,borderRadius:10,marginHorizontal:16,marginVertical:7},
+  movieGrid:{flexDirection:"row",flexWrap:"wrap",paddingHorizontal:10},
+  movieCard:{width:"46%",margin:"2%",marginBottom:18},
+  poster:{width:"100%",height:205,borderRadius:10,backgroundColor:"#292929"},
+  posterPlaceholder:{alignItems:"center",justifyContent:"center"},
+  posterLogo:{fontSize:40,fontWeight:"900",color:C.red},
+  movieTitle:{color:C.white,fontWeight:"bold",marginTop:7},
+  linkText:{color:"#ff646b",marginTop:7,fontWeight:"bold"},
+  nav:{flexDirection:"row",justifyContent:"space-around",backgroundColor:"#151515",paddingVertical:9,borderTopWidth:1,borderColor:"#333"},
+  navItem:{alignItems:"center",flex:1},
+  navText:{color:"#aaa",fontSize:19},
+  navLabel:{color:"#aaa",fontSize:9,marginTop:3},
+  navActive:{color:C.red,fontWeight:"900"},
+  video:{width:"100%",height:240,backgroundColor:"#000",marginTop:15},
+  back:{padding:16},
+  option:{color:C.white,padding:12,marginHorizontal:16,backgroundColor:C.panel,borderRadius:8,marginVertical:4},
+  optionButton:{padding:14,marginHorizontal:16,marginVertical:4,backgroundColor:C.panel,borderRadius:8},
+  activeOption:{borderWidth:1,borderColor:C.red},
+  whiteText:{color:C.white,fontWeight:"bold",textAlign:"center"},
+  form:{padding:10},
+  redButton:{backgroundColor:C.red,padding:15,borderRadius:10,margin:12}
+});
