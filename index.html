@@ -1,206 +1,112 @@
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
-  View, Text, TextInput, ScrollView, Pressable,
-  Image, StyleSheet, SafeAreaView, Alert
-} from "react-native";
-import { Video, ResizeMode } from "expo-av";
+  View, Text, ScrollView, TextInput, TouchableOpacity,
+  Image, StyleSheet, SafeAreaView, StatusBar, Alert
+} from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 
-const STARTER_MOVIES = [
-  {
-    id: "1",
-    title: "Big Buck Bunny",
-    type: "Film",
-    category: "Animation",
-    description: "Ein lustiges Animationsabenteuer.",
-    poster: "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
-    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    languages: ["Englisch"],
-    subtitles: [],
-    available: true
-  },
-  {
-    id: "2",
-    title: "Rapunzel – Neu verföhnt",
-    type: "Film",
-    category: "Märchen",
-    description: "Ein märchenhaftes Abenteuer.",
-    poster: "",
-    url: "",
-    languages: [],
-    subtitles: [],
-    available: false
-  },
-  {
-    id: "3",
-    title: "Miraculous",
-    type: "Serie",
-    category: "Animation",
-    description: "Die Abenteuer von Ladybug und Cat Noir.",
-    poster: "",
-    url: "",
-    languages: [],
-    subtitles: [],
-    available: false
-  },
-  {
-    id: "4",
-    title: "Sintel",
-    type: "Film",
-    category: "Fantasy",
-    description: "Ein fantastisches Animationsabenteuer.",
-    poster: "",
-    url: "",
-    languages: [],
-    subtitles: [],
-    available: false
-  },
-  {
-    id: "5",
-    title: "Die Eiskönigin",
-    type: "Film",
-    category: "Märchen",
-    description: "Eine Geschichte über Liebe und Mut.",
-    poster: "",
-    url: "",
-    languages: [],
-    subtitles: [],
-    available: false
-  }
+const RED = '#E50914';
+const BG = '#090909';
+
+const movies = [
+  { id: '1', title: 'Dream Adventure', type: 'Film', year: '2026', age: '12+', image: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', description: 'Ein spannendes Abenteuer voller Geheimnisse und Magie.' },
+  { id: '2', title: 'Fantasy World', type: 'Serie', year: '2025', age: '12+', image: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', description: 'Eine fantastische Welt wartet darauf, entdeckt zu werden.' },
+  { id: '3', title: 'The Adventure', type: 'Film', year: '2024', age: '6+', image: 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', description: 'Ein Abenteuer für die ganze Familie.' },
+  { id: '4', title: 'Magic Kingdom', type: 'Serie', year: '2025', age: '12+', image: 'https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', description: 'Magie, Freundschaft und große Herausforderungen.' },
+  { id: '5', title: 'Little Heroes', type: 'Film', year: '2025', age: '6+', image: 'https://image.tmdb.org/t/p/w500/2E2WTX0TJEflAged6kzErwqX1kt.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', description: 'Kleine Helden erleben große Geschichten.' },
+  { id: '6', title: 'The Mystery', type: 'Serie', year: '2026', age: '12+', image: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg', video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4', description: 'Ein Geheimnis, das alles verändert.' }
 ];
 
-const C = {
-  bg: "#090909",
-  panel: "#191919",
-  red: "#e50914",
-  white: "#ffffff",
-  muted: "#aaaaaa",
-  green: "#43c77a"
-};
-
 export default function App() {
-  const [movies, setMovies] = useState(STARTER_MOVIES);
-  const [page, setPage] = useState("Startseite");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [tab, setTab] = useState('Start');
   const [selected, setSelected] = useState(null);
   const [watchlist, setWatchlist] = useState([]);
-  const [profile, setProfile] = useState("");
-  const [search, setSearch] = useState("");
-  const [admin, setAdmin] = useState(false);
-  const [pin, setPin] = useState("");
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [poster, setPoster] = useState("");
-  const [languages, setLanguages] = useState("");
-  const [description, setDescription] = useState("");
-  const [quality, setQuality] = useState("Automatisch");
+  const [query, setQuery] = useState('');
+  const [kids, setKids] = useState(false);
+  const [profile, setProfile] = useState('Mein Profil');
+  const [playing, setPlaying] = useState(false);
 
-  const playable = movies.filter(m => m.available && m.url);
-
-  function openMovie(movie) {
-    if (!movie.available || !movie.url) {
-      Alert.alert(
-        "Noch nicht verfügbar",
-        "Dieser Titel ist vorgemerkt. Er benötigt noch eine Videodatei und die erforderlichen Nutzungsrechte."
-      );
-      return;
-    }
+  const openMovie = (movie) => {
     setSelected(movie);
-  }
+    setPlaying(false);
+  };
 
-  function toggleWatchlist(movie) {
+  const toggleSaved = (movie) => {
     setWatchlist(old =>
-      old.some(x => x.id === movie.id)
-        ? old.filter(x => x.id !== movie.id)
+      old.some(item => item.id === movie.id)
+        ? old.filter(item => item.id !== movie.id)
         : [...old, movie]
     );
-  }
+  };
 
-  function addMovie() {
-    if (!title.trim() || !url.trim()) {
-      Alert.alert("Angaben fehlen", "Bitte Titel und Video-Adresse eingeben.");
-      return;
-    }
-
-    const newMovie = {
-      id: String(Date.now()),
-      title: title.trim(),
-      type: "Film",
-      category: "Neu",
-      description,
-      poster,
-      url,
-      languages: languages.split(",").map(x => x.trim()).filter(Boolean),
-      subtitles: [],
-      available: true
-    };
-
-    setMovies(old => [newMovie, ...old]);
-    setTitle("");
-    setUrl("");
-    setPoster("");
-    setLanguages("");
-    setDescription("");
-    Alert.alert("Hinzugefügt", "Der Titel wurde in diesen App-Prototyp aufgenommen.");
-  }
-
-  const visibleMovies = movies.filter(m => {
-    const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase());
-    if (page === "Filme") return matchesSearch && m.type === "Film";
-    if (page === "Serien") return matchesSearch && m.type === "Serie";
-    if (page === "Merkliste") return watchlist.some(x => x.id === m.id);
-    if (page === "Kids") return matchesSearch && ["Animation", "Märchen"].includes(m.category);
-    return matchesSearch;
+  const visibleMovies = movies.filter(movie => {
+    const matchesSearch = movie.title.toLowerCase().includes(query.toLowerCase());
+    const matchesKids = !kids || movie.age === '6+';
+    const matchesTab =
+      tab === 'Filme' ? movie.type === 'Film' :
+      tab === 'Serien' ? movie.type === 'Serie' : true;
+    return matchesSearch && matchesKids && matchesTab;
   });
 
-  function Header() {
+  const poster = (movie, width = 125) => (
+    <TouchableOpacity
+      key={movie.id}
+      style={{ width, marginRight: 12 }}
+      onPress={() => openMovie(movie)}
+    >
+      <Image source={{ uri: movie.image }} style={styles.poster} />
+      <Text style={styles.posterTitle} numberOfLines={1}>{movie.title}</Text>
+      <Text style={styles.small}>{movie.type} · {movie.age}</Text>
+    </TouchableOpacity>
+  );
+
+  if (!loggedIn) {
     return (
-      <View style={styles.header}>
-        <Text style={styles.logo}>D<Text style={{color:C.red}}>F</Text></Text>
+      <SafeAreaView style={styles.login}>
+        <StatusBar barStyle="light-content" />
+        <Text style={styles.logo}>D<Text style={{ color: RED }}>F</Text></Text>
         <Text style={styles.brand}>DREAMFLIX</Text>
-        <Pressable onPress={() => setPage("Einstellungen")}>
-          <Text style={styles.headerIcon}>⚙️</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  function MovieCard({ movie }) {
-    return (
-      <Pressable style={styles.movieCard} onPress={() => openMovie(movie)}>
-        {movie.poster ? (
-          <Image source={{uri:movie.poster}} style={styles.poster} />
-        ) : (
-          <View style={[styles.poster, styles.posterPlaceholder]}>
-            <Text style={styles.posterLogo}>DF</Text>
-          </View>
-        )}
-        <Text style={styles.movieTitle} numberOfLines={2}>{movie.title}</Text>
-        <Text style={styles.smallText}>
-          {movie.available ? "▶ Abspielen" : "Noch nicht verfügbar"}
-        </Text>
-        <Pressable onPress={() => toggleWatchlist(movie)}>
-          <Text style={styles.linkText}>
-            {watchlist.some(x => x.id === movie.id) ? "♥ Gemerkt" : "+ Merkliste"}
+        <Text style={styles.tagline}>Deine Welt. Deine Filme.</Text>
+        <View style={styles.loginBox}>
+          <Text style={styles.heading}>Willkommen zurück!</Text>
+          <Text style={styles.label}>E-Mail-Adresse</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Deine E-Mail"
+            placeholderTextColor="#888"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Text style={styles.label}>Passwort</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Dein Passwort"
+            placeholderTextColor="#888"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.redButton}
+            onPress={() => {
+              if (!email.includes('@') || password.length < 4) {
+                Alert.alert('Bitte prüfen', 'Gib eine gültige E-Mail und ein Passwort mit mindestens 4 Zeichen ein.');
+              } else {
+                setLoggedIn(true);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>ANMELDEN</Text>
+          </TouchableOpacity>
+          <Text style={styles.smallCenter}>
+            Demo-Anmeldung: Noch kein echtes Benutzerkonto oder Passwortsystem.
           </Text>
-        </Pressable>
-      </Pressable>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.center}>
-          <Text style={styles.logoLarge}>D<Text style={{color:C.red}}>F</Text></Text>
-          <Text style={styles.bigTitle}>Wer schaut gerade?</Text>
-          {["Kasem", "Profil 2", "Profil 3", "DreamFlix Kids"].map(name => (
-            <Pressable key={name} style={styles.profileButton}
-              onPress={() => setProfile(name)}>
-              <Text style={styles.profileText}>
-                {name === "DreamFlix Kids" ? "🌈 " : "👤 "}{name}
-              </Text>
-            </Pressable>
-          ))}
         </View>
       </SafeAreaView>
     );
@@ -209,38 +115,36 @@ export default function App() {
   if (selected) {
     return (
       <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" />
         <ScrollView>
-          <Pressable onPress={() => setSelected(null)} style={styles.back}>
-            <Text style={styles.linkText}>‹ Zurück zu DreamFlix</Text>
-          </Pressable>
-          <Text style={styles.bigTitle}>{selected.title}</Text>
-          <Video
-            source={{uri:selected.url}}
-            style={styles.video}
-            useNativeControls
-            resizeMode={ResizeMode.CONTAIN}
-            shouldPlay
-            isLooping={false}
-          />
-          <Text style={styles.sectionTitle}>Audio und Sprachen</Text>
-          {selected.languages.length ? selected.languages.map(lang => (
-            <Text key={lang} style={styles.option}>🔊 {lang}</Text>
-          )) : <Text style={styles.smallText}>Keine Sprachinformationen hinterlegt.</Text>}
-          <Text style={styles.sectionTitle}>Untertitel</Text>
-          {selected.subtitles.length ? selected.subtitles.map(lang => (
-            <Text key={lang} style={styles.option}>CC {lang}</Text>
-          )) : <Text style={styles.smallText}>Keine Untertitel hinterlegt.</Text>}
-          <Text style={styles.sectionTitle}>Videoqualität</Text>
-          {["Automatisch", "1080p", "720p", "480p"].map(q => (
-            <Pressable key={q} onPress={() => setQuality(q)}
-              style={[styles.optionButton, quality === q && styles.activeOption]}>
-              <Text style={styles.whiteText}>{q}{quality === q ? " ✓" : ""}</Text>
-            </Pressable>
-          ))}
-          <Text style={styles.smallText}>
-            Die Qualität wird erst tatsächlich umgeschaltet, wenn passende Videovarianten bereitgestellt sind.
-            Die Sprachliste zeigt die hinterlegten Tonspuren; die Auswahl einzelner Tonspuren benötigt noch die passende Player-Integration.
-          </Text>
+          <TouchableOpacity style={styles.back} onPress={() => setSelected(null)}>
+            <Text style={styles.backText}>‹  Zurück</Text>
+          </TouchableOpacity>
+          {playing ? (
+            <Video
+              source={{ uri: selected.video }}
+              style={styles.video}
+              useNativeControls
+              resizeMode={ResizeMode.CONTAIN}
+              shouldPlay
+              onError={() => Alert.alert('Video', 'Das Beispielvideo konnte nicht geladen werden.')}
+            />
+          ) : (
+            <Image source={{ uri: selected.image }} style={styles.detailImage} />
+          )}
+          <View style={styles.content}>
+            <Text style={styles.detailTitle}>{selected.title}</Text>
+            <Text style={styles.small}>{selected.year}  ·  {selected.type}  ·  {selected.age}</Text>
+            <Text style={styles.description}>{selected.description}</Text>
+            <TouchableOpacity style={styles.redButton} onPress={() => setPlaying(true)}>
+              <Text style={styles.buttonText}>▶  JETZT ABSPIELEN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.outlineButton} onPress={() => toggleSaved(selected)}>
+              <Text style={styles.buttonText}>
+                {watchlist.some(item => item.id === selected.id) ? '✓ In Merkliste' : '+ Zur Merkliste'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -248,106 +152,100 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
-      <ScrollView contentContainerStyle={{paddingBottom:30}}>
-        <View style={styles.welcome}>
-          <Text style={styles.redLabel}>DEIN STREAMING-ZUHAUSE</Text>
-          <Text style={styles.heroTitle}>Filme. Serien. Deine Welt.</Text>
-          <Text style={styles.smallText}>Hallo {profile} 👋</Text>
-        </View>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.header}>
+        <Text style={styles.headerLogo}>DREAM<Text style={{ color: RED }}>FLIX</Text></Text>
+        <TouchableOpacity onPress={() => { setKids(!kids); setTab('Start'); }}>
+          <Text style={styles.kidsButton}>{kids ? '🌈 Kids AN' : '🌈 Kids'}</Text>
+        </TouchableOpacity>
+      </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="🔍 Filme und Serien suchen..."
-          placeholderTextColor={C.muted}
-          value={search}
-          onChangeText={setSearch}
-        />
+      <ScrollView contentContainerStyle={{ paddingBottom: 25 }}>
+        {tab === 'Start' && (
+          <View style={styles.hero}>
+            <Text style={styles.heroOverline}>EXKLUSIV AUF DREAMFLIX</Text>
+            <Text style={styles.heroTitle}>{kids ? 'DREAMFLIX KIDS' : 'DEIN NÄCHSTES ABENTEUER'}</Text>
+            <Text style={styles.heroDescription}>Entdecke Filme und Serien für deine nächste Lieblingsgeschichte.</Text>
+            <TouchableOpacity style={styles.redButton} onPress={() => openMovie(visibleMovies[0] || movies[0])}>
+              <Text style={styles.buttonText}>▶  ENTDECKEN</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        {page === "Admin" ? (
-          <View style={styles.form}>
-            <Text style={styles.sectionTitle}>DreamFlix Admin</Text>
-            {!admin ? (
-              <>
-                <Text style={styles.smallText}>Demo-Admin-PIN: 2468 (später durch sichere Anmeldung ersetzen)</Text>
-                <TextInput style={styles.input} placeholder="Admin-PIN"
-                  placeholderTextColor={C.muted} value={pin}
-                  onChangeText={setPin} secureTextEntry />
-                <Pressable style={styles.redButton} onPress={() => {
-                  if (pin === "2468") setAdmin(true);
-                  else Alert.alert("Falsche PIN", "Bitte erneut versuchen.");
-                }}>
-                  <Text style={styles.whiteText}>Admin öffnen</Text>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Text style={styles.smallText}>Neuen Film hinzufügen</Text>
-                <TextInput style={styles.input} placeholder="Filmtitel"
-                  placeholderTextColor={C.muted} value={title} onChangeText={setTitle}/>
-                <TextInput style={styles.input} placeholder="Video-Adresse (URL)"
-                  placeholderTextColor={C.muted} value={url} onChangeText={setUrl}/>
-                <TextInput style={styles.input} placeholder="Poster-Adresse (URL)"
-                  placeholderTextColor={C.muted} value={poster} onChangeText={setPoster}/>
-                <TextInput style={styles.input} placeholder="Sprachen, z.B. Deutsch, Arabisch"
-                  placeholderTextColor={C.muted} value={languages} onChangeText={setLanguages}/>
-                <TextInput style={styles.input} placeholder="Beschreibung"
-                  placeholderTextColor={C.muted} value={description} onChangeText={setDescription}/>
-                <Pressable style={styles.redButton} onPress={addMovie}>
-                  <Text style={styles.whiteText}>＋ Film speichern</Text>
-                </Pressable>
-                <Text style={styles.smallText}>
-                  Änderungen sind in diesem Prototyp zunächst nur während der laufenden Sitzung gespeichert.
-                </Text>
-              </>
-            )}
+        {tab === 'Suche' && (
+          <View style={styles.searchArea}>
+            <Text style={styles.heading}>Suche</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Filme und Serien suchen ..."
+              placeholderTextColor="#888"
+              value={query}
+              onChangeText={setQuery}
+            />
           </View>
-        ) : page === "Einstellungen" ? (
-          <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Einstellungen</Text>
-            <Text style={styles.option}>Aktives Profil: {profile}</Text>
-            <Pressable style={styles.redButton} onPress={() => {
-              setProfile(""); setPage("Startseite"); setSelected(null);
-            }}>
-              <Text style={styles.whiteText}>Profil wechseln</Text>
-            </Pressable>
-            <Pressable style={styles.optionButton} onPress={() => setPage("Admin")}>
-              <Text style={styles.whiteText}>Admin-Bereich öffnen</Text>
-            </Pressable>
+        )}
+
+        {tab === 'Merkliste' && (
+          <Text style={styles.heading}>Meine Merkliste</Text>
+        )}
+
+        {tab === 'Profil' && (
+          <View style={styles.profileArea}>
+            <Text style={styles.heading}>Profile</Text>
+            {['Mein Profil', 'Profil 2', 'Profil 3', 'Profil 4'].map(name => (
+              <TouchableOpacity key={name} style={styles.profileRow} onPress={() => setProfile(name)}>
+                <Text style={styles.profileAvatar}>👤</Text>
+                <Text style={styles.profileName}>{name}</Text>
+                <Text style={{ color: RED }}>{profile === name ? '✓' : '›'}</Text>
+              </TouchableOpacity>
+            ))}
+            <Text style={styles.small}>Aktiv: {profile}</Text>
+            <TouchableOpacity style={styles.outlineButton} onPress={() => setLoggedIn(false)}>
+              <Text style={styles.buttonText}>ABMELDEN</Text>
+            </TouchableOpacity>
           </View>
-        ) : (
+        )}
+
+        {tab !== 'Profil' && (
           <>
-            <Text style={styles.sectionTitle}>
-              {page === "Startseite" ? "⭐ Für dich" : page}
-            </Text>
-            <View style={styles.movieGrid}>
-              {visibleMovies.map(movie => <MovieCard key={movie.id} movie={movie}/>)}
+            {tab === 'Start' && (
+              <Text style={styles.sectionTitle}>Beliebt auf DreamFlix</Text>
+            )}
+            {tab === 'Filme' && <Text style={styles.sectionTitle}>Alle Filme</Text>}
+            {tab === 'Serien' && <Text style={styles.sectionTitle}>Alle Serien</Text>}
+            {tab === 'Merkliste' && null}
+            {tab === 'Suche' && null}
+            {tab === 'Start' && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
+                {visibleMovies.map(movie => poster(movie))}
+              </ScrollView>
+            )}
+            {tab === 'Start' && (
+              <Text style={styles.sectionTitle}>Das könnte dir gefallen</Text>
+            )}
+            {(tab !== 'Start' ? (tab === 'Merkliste' ? watchlist : visibleMovies) : visibleMovies).length === 0 && (
+              <Text style={styles.empty}>Hier ist noch nichts zu sehen.</Text>
+            )}
+            <View style={styles.grid}>
+              {(tab === 'Start' ? visibleMovies : tab === 'Merkliste' ? watchlist : visibleMovies)
+                .map(movie => poster(movie, 145))}
             </View>
-            {visibleMovies.length === 0 && (
-              <Text style={styles.smallText}>Keine Titel gefunden.</Text>
-            )}
-            {page === "Startseite" && (
-              <>
-                <Text style={styles.sectionTitle}>🎬 Alle Filme und Serien</Text>
-                <View style={styles.movieGrid}>
-                  {movies.map(movie => <MovieCard key={movie.id} movie={movie}/>)}
-                </View>
-              </>
-            )}
           </>
         )}
       </ScrollView>
 
       <View style={styles.nav}>
-        {["Startseite", "Filme", "Serien", "Kids", "Merkliste", "Admin"].map(item => (
-          <Pressable key={item} style={styles.navItem} onPress={() => {
-            setPage(item); setSearch("");
+        {[
+          ['⌂', 'Start'], ['▣', 'Filme'], ['▤', 'Serien'],
+          ['⌕', 'Suche'], ['♡', 'Merkliste'], ['☺', 'Profil']
+        ].map(([symbol, name]) => (
+          <TouchableOpacity key={name} style={styles.navItem} onPress={() => {
+            setTab(name);
+            setQuery('');
           }}>
-            <Text style={[styles.navText, page === item && styles.navActive]}>
-              {({Startseite:"⌂", Filme:"▣", Serien:"▤", Kids:"🌈", Merkliste:"♥", Admin:"⚙"})[item]}
-            </Text>
-            <Text style={[styles.navLabel, page === item && styles.navActive]}>{item}</Text>
-          </Pressable>
+            <Text style={[styles.navSymbol, tab === name && { color: RED }]}>{symbol}</Text>
+            <Text style={[styles.navLabel, tab === name && { color: RED }]}>{name}</Text>
+          </TouchableOpacity>
         ))}
       </View>
     </SafeAreaView>
@@ -355,40 +253,47 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container:{flex:1,backgroundColor:C.bg},
-  header:{height:58,flexDirection:"row",alignItems:"center",paddingHorizontal:18,borderBottomWidth:1,borderColor:"#292929"},
-  logo:{fontSize:32,fontWeight:"900",color:C.white},
-  brand:{color:C.white,fontWeight:"900",letterSpacing:3,marginLeft:10,flex:1},
-  headerIcon:{fontSize:22},
-  center:{flex:1,justifyContent:"center",alignItems:"center",padding:24},
-  logoLarge:{fontSize:76,fontWeight:"900",color:C.white},
-  bigTitle:{fontSize:25,fontWeight:"900",color:C.white,margin:18},
-  profileButton:{backgroundColor:C.panel,padding:18,borderRadius:12,width:"100%",marginVertical:6},
-  profileText:{color:C.white,fontSize:17,textAlign:"center"},
-  welcome:{padding:22,minHeight:150,justifyContent:"center"},
-  redLabel:{color:C.red,fontWeight:"900",letterSpacing:2},
-  heroTitle:{fontSize:29,fontWeight:"900",color:C.white,marginVertical:8},
-  sectionTitle:{fontSize:21,fontWeight:"900",color:C.white,margin:18},
-  smallText:{color:C.muted,fontSize:12,marginTop:6},
-  input:{backgroundColor:C.panel,color:C.white,padding:14,borderRadius:10,marginHorizontal:16,marginVertical:7},
-  movieGrid:{flexDirection:"row",flexWrap:"wrap",paddingHorizontal:10},
-  movieCard:{width:"46%",margin:"2%",marginBottom:18},
-  poster:{width:"100%",height:205,borderRadius:10,backgroundColor:"#292929"},
-  posterPlaceholder:{alignItems:"center",justifyContent:"center"},
-  posterLogo:{fontSize:40,fontWeight:"900",color:C.red},
-  movieTitle:{color:C.white,fontWeight:"bold",marginTop:7},
-  linkText:{color:"#ff646b",marginTop:7,fontWeight:"bold"},
-  nav:{flexDirection:"row",justifyContent:"space-around",backgroundColor:"#151515",paddingVertical:9,borderTopWidth:1,borderColor:"#333"},
-  navItem:{alignItems:"center",flex:1},
-  navText:{color:"#aaa",fontSize:19},
-  navLabel:{color:"#aaa",fontSize:9,marginTop:3},
-  navActive:{color:C.red,fontWeight:"900"},
-  video:{width:"100%",height:240,backgroundColor:"#000",marginTop:15},
-  back:{padding:16},
-  option:{color:C.white,padding:12,marginHorizontal:16,backgroundColor:C.panel,borderRadius:8,marginVertical:4},
-  optionButton:{padding:14,marginHorizontal:16,marginVertical:4,backgroundColor:C.panel,borderRadius:8},
-  activeOption:{borderWidth:1,borderColor:C.red},
-  whiteText:{color:C.white,fontWeight:"bold",textAlign:"center"},
-  form:{padding:10},
-  redButton:{backgroundColor:C.red,padding:15,borderRadius:10,margin:12}
+  container: { flex: 1, backgroundColor: BG },
+  login: { flex: 1, backgroundColor: BG, justifyContent: 'center', padding: 25 },
+  logo: { color: 'white', fontSize: 90, fontWeight: '900', textAlign: 'center' },
+  brand: { color: 'white', fontSize: 27, fontWeight: '900', textAlign: 'center', letterSpacing: 5 },
+  tagline: { color: '#aaa', textAlign: 'center', marginTop: 8, marginBottom: 35 },
+  loginBox: { backgroundColor: '#171717', padding: 22, borderRadius: 16 },
+  heading: { color: 'white', fontSize: 23, fontWeight: 'bold', marginBottom: 18 },
+  label: { color: '#ddd', marginBottom: 8, marginTop: 12 },
+  input: { backgroundColor: '#292929', color: 'white', padding: 15, borderRadius: 9, marginBottom: 12 },
+  redButton: { backgroundColor: RED, padding: 16, borderRadius: 9, alignItems: 'center', marginTop: 14 },
+  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
+  smallCenter: { color: '#888', fontSize: 11, textAlign: 'center', marginTop: 18 },
+  header: { height: 60, paddingHorizontal: 17, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerLogo: { color: 'white', fontWeight: '900', fontSize: 23, letterSpacing: 1 },
+  kidsButton: { color: 'white', backgroundColor: '#292929', padding: 9, borderRadius: 8 },
+  hero: { minHeight: 260, backgroundColor: '#321014', justifyContent: 'center', padding: 23 },
+  heroOverline: { color: '#ff7777', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 },
+  heroTitle: { color: 'white', fontSize: 31, fontWeight: '900', marginTop: 12 },
+  heroDescription: { color: '#ddd', marginTop: 10, lineHeight: 21 },
+  sectionTitle: { color: 'white', fontSize: 19, fontWeight: 'bold', marginHorizontal: 16, marginTop: 23, marginBottom: 13 },
+  row: { paddingLeft: 15 },
+  poster: { width: '100%', height: 185, borderRadius: 8, backgroundColor: '#292929' },
+  posterTitle: { color: 'white', fontWeight: 'bold', marginTop: 7 },
+  small: { color: '#999', fontSize: 12, marginTop: 4 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 15, justifyContent: 'flex-start' },
+  empty: { color: '#aaa', textAlign: 'center', margin: 30 },
+  nav: { flexDirection: 'row', backgroundColor: '#151515', borderTopWidth: 1, borderTopColor: '#333', paddingTop: 9, paddingBottom: 5, justifyContent: 'space-around' },
+  navItem: { alignItems: 'center', flex: 1 },
+  navSymbol: { color: '#aaa', fontSize: 22 },
+  navLabel: { color: '#aaa', fontSize: 9, marginTop: 3 },
+  searchArea: { padding: 17 },
+  back: { padding: 16 },
+  backText: { color: 'white', fontSize: 17 },
+  detailImage: { width: '100%', height: 300, resizeMode: 'cover' },
+  video: { width: '100%', height: 260, backgroundColor: 'black' },
+  content: { padding: 20 },
+  detailTitle: { color: 'white', fontSize: 28, fontWeight: '900' },
+  description: { color: '#ddd', fontSize: 15, lineHeight: 23, marginTop: 18 },
+  outlineButton: { borderWidth: 1, borderColor: '#777', padding: 15, borderRadius: 9, alignItems: 'center', marginTop: 12 },
+  profileArea: { padding: 20 },
+  profileRow: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#202020', marginBottom: 10, borderRadius: 10 },
+  profileAvatar: { fontSize: 27, marginRight: 15 },
+  profileName: { color: 'white', fontSize: 16, flex: 1 }
 });
