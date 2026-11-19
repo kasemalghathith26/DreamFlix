@@ -1,138 +1,130 @@
-<!-- DreamFlix -->
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DreamFlix</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: #101010;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    header {
-      background: #080808;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #e50914;
-    }
-
-    .logo {
-      color: #e50914;
-      font-size: 29px;
-      font-weight: bold;
-    }
-
-    .hero {
-      padding: 55px 22px;
-      background: linear-gradient(90deg, #300000, #151515);
-    }
-
-    .hero h1 { font-size: 36px; }
-
-    .hero p { color: #ddd; }
-
-    button {
-      background: #e50914;
-      color: white;
-      border: 0;
-      padding: 13px 20px;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    main { padding: 20px; }
-
-    .movies {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-
-    .movie {
-      background: #242424;
-      border-radius: 9px;
-      overflow: hidden;
-    }
-
-    .poster {
-      height: 125px;
-      display: grid;
-      place-items: center;
-      font-size: 42px;
-      background: linear-gradient(135deg, #570000, #252525);
-    }
-
-    .movie h3 { padding: 0 10px; }
-
-    .movie p {
-      padding: 0 10px 10px;
-      color: #bbb;
-      font-size: 13px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 25px;
-      color: #888;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>DreamFlix</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif;padding-bottom:75px}
+header{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#090909;position:sticky;top:0;z-index:5}
+.logo{font-size:25px;font-weight:900;color:#ed1724;letter-spacing:-1px}
+.logo span{color:white}
+header button,.nav button{background:none;border:0;color:white;font-size:20px}
+.search{padding:10px 16px}
+.search input{width:100%;padding:13px;border-radius:7px;background:#242424;border:1px solid #444;color:white;font-size:15px}
+.hero{min-height:340px;padding:100px 20px 25px;background:linear-gradient(0deg,#090909 0%,transparent 100%),linear-gradient(90deg,#210000,#111 65%,#292020)}
+.hero small{color:#ff5962;font-weight:bold}
+.hero h1{font-size:36px;margin:10px 0}
+.hero p{color:#ddd;max-width:330px;line-height:1.5}
+.actions{display:flex;gap:10px;margin-top:20px}
+.actions button{padding:12px 18px;border:0;border-radius:5px;font-weight:bold}
+.play{background:white;color:#111}
+.more{background:#444;color:white}
+section{padding:12px 16px 8px}
+section h2{font-size:19px;margin:10px 0 14px}
+.shelf{display:flex;gap:11px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.shelf::-webkit-scrollbar{display:none}
+.poster{flex:0 0 125px;height:180px;border-radius:8px;background:linear-gradient(145deg,#601018,#171717);display:flex;align-items:end;padding:10px;font-weight:bold;font-size:15px;box-shadow:0 3px 12px #000}
+.poster:nth-child(2){background:linear-gradient(145deg,#164c68,#151515)}
+.poster:nth-child(3){background:linear-gradient(145deg,#633c12,#151515)}
+.poster:nth-child(4){background:linear-gradient(145deg,#44246c,#151515)}
+.poster:nth-child(5){background:linear-gradient(145deg,#17604c,#151515)}
+.kids{margin:18px 16px;padding:22px;border-radius:12px;background:linear-gradient(120deg,#ff75ae,#7b55d9,#32b8d1);color:white}
+.kids h2{margin:0 0 8px}
+.kids button{border:0;border-radius:6px;padding:10px 16px;font-weight:bold}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #333;display:flex;justify-content:space-around;padding:12px 3px;z-index:10}
+.nav button{font-size:12px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.nav span{font-size:20px}
+footer{text-align:center;color:#777;padding:25px;font-size:12px}
+</style>
 </head>
 <body>
+<header>
+<div class="logo">DF <span>DreamFlix</span></div>
+<button onclick="document.getElementById('search').focus()">⌕</button>
+</header>
 
-  <header>
-    <div class="logo">DF DreamFlix</div>
-    <span>☰</span>
-  </header>
+<div class="search">
+<input id="search" placeholder="Filme oder Serie suchen..." oninput="searchTitles(this.value)">
+</div>
 
-  <section class="hero">
-    <h1>Willkommen bei DreamFlix!</h1>
-    <p>Deine Welt. Deine Filme. Dein DreamFlix.</p>
-    <button onclick="alert('DreamFlix kommt bald!')">
-      Jetzt entdecken
-    </button>
-  </section>
+<div class="hero">
+<small>★ DEIN STREAMING-ERLEBNIS</small>
+<h1>Deine Welt.<br>Deine Filme.</h1>
+<p>Entdecke spannende Geschichten, große Abenteuer und deine neue Lieblingsserie.</p>
+<div class="actions">
+<button class="play" onclick="alert('DreamFlix: Die Wiedergabe kommt bald!')">▶ Entdecken</button>
+<button class="more" onclick="document.getElementById('beliebt').scrollIntoView({behavior:'smooth'})">ⓘ Mehr</button>
+</div>
+</div>
 
-  <main>
-    <h2>🍿 Beliebte Kategorien</h2>
-    <div class="movies">
-      <div class="movie">
-        <div class="poster">🎬</div>
-        <h3>Filme</h3>
-        <p>Deine Filmwelt</p>
-      </div>
+<section id="beliebt">
+<h2>🔥 Beliebt auf DreamFlix</h2>
+<div class="shelf">
+<div class="poster">Das Abenteuer</div>
+<div class="poster">Weltraumreise</div>
+<div class="poster">Magische Welt</div>
+<div class="poster">Geheimnisvolle Insel</div>
+<div class="poster">Die Helden</div>
+</div>
+</section>
 
-      <div class="movie">
-        <div class="poster">📺</div>
-        <h3>Serien</h3>
-        <p>Neue Serien entdecken</p>
-      </div>
+<section>
+<h2>🎬 Filme entdecken</h2>
+<div class="shelf">
+<div class="poster">Fantasy</div>
+<div class="poster">Abenteuer</div>
+<div class="poster">Comedy</div>
+<div class="poster">Action</div>
+<div class="poster">Familie</div>
+</div>
+</section>
 
-      <div class="movie">
-        <div class="poster">🌈</div>
-        <h3>DreamFlix Kids</h3>
-        <p>Eine bunte Welt</p>
-      </div>
+<section>
+<h2>📺 Serien für dich</h2>
+<div class="shelf">
+<div class="poster">Neue Welten</div>
+<div class="poster">Die Freunde</div>
+<div class="poster">Geheimnisse</div>
+<div class="poster">Große Reise</div>
+</div>
+</section>
 
-      <div class="movie">
-        <div class="poster">⭐</div>
-        <h3>Meine Watchlist</h3>
-        <p>Deine Favoriten</p>
-      </div>
-    </div>
-  </main>
+<div class="kids">
+<h2>🌈 DreamFlix Kids</h2>
+<p>Eine bunte Welt voller Geschichten, Tiere und Abenteuer!</p>
+<button onclick="alert('DreamFlix Kids kommt bald!')">Kids entdecken</button>
+</div>
 
-  <footer>
-    © 2026 DreamFlix – Deine Streaming-Welt
-  </footer>
+<section>
+<h2>⭐ Neu hinzugefügt</h2>
+<div class="shelf">
+<div class="poster">Sternenlicht</div>
+<div class="poster">Der Zauberwald</div>
+<div class="poster">Abenteuerland</div>
+<div class="poster">Die Entdeckung</div>
+</div>
+</section>
 
+<footer>© 2026 DreamFlix · Deine Streaming-Welt</footer>
+
+<nav class="nav">
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})"><span>⌂</span>Start</button>
+<button onclick="document.querySelectorAll('section')[1].scrollIntoView({behavior:'smooth'})"><span>🎬</span>Filme</button>
+<button onclick="document.querySelectorAll('section')[2].scrollIntoView({behavior:'smooth'})"><span>📺</span>Serien</button>
+<button onclick="document.querySelector('.kids').scrollIntoView({behavior:'smooth'})"><span>🌈</span>Kids</button>
+<button onclick="alert('Deine Merkliste kommt bald!')"><span>＋</span>Merkliste</button>
+</nav>
+
+<script>
+function searchTitles(value){
+document.querySelectorAll('.poster').forEach(p=>{
+p.style.display=p.textContent.toLowerCase().includes(value.toLowerCase())?'flex':'none';
+});
+}
+</script>
 </body>
 </html>
