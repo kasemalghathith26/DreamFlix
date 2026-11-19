@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DreamFlix</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #101010;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #080808;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e50914;
+    }
+
+    .logo {
+      color: #e50914;
+      font-size: 29px;
+      font-weight: bold;
+    }
+
+    .hero {
+      padding: 55px 22px;
+      background: linear-gradient(90deg, #300000, #151515);
+    }
+
+    .hero h1 { font-size: 36px; }
+
+    .hero p { color: #ddd; }
+
+    button {
+      background: #e50914;
+      color: white;
+      border: 0;
+      padding: 13px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    main { padding: 20px; }
+
+    .movies {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .movie {
+      background: #242424;
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .poster {
+      height: 125px;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      background: linear-gradient(135deg, #570000, #252525);
+    }
+
+    .movie h3 { padding: 0 10px; }
+
+    .movie p {
+      padding: 0 10px 10px;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">DF DreamFlix</div>
+    <span>☰</span>
+  </header>
+
+  <section class="hero">
+    <h1>Willkommen bei DreamFlix!</h1>
+    <p>Deine Welt. Deine Filme. Dein DreamFlix.</p>
+    <button onclick="alert('DreamFlix kommt bald!')">
+      Jetzt entdecken
+    </button>
+  </section>
+
+  <main>
+    <h2>🍿 Beliebte Kategorien</h2>
+    <div class="movies">
+      <div class="movie">
+        <div class="poster">🎬</div>
+        <h3>Filme</h3>
+        <p>Deine Filmwelt</p>
+      </div>
+
+      <div class="movie">
+        <div class="poster">📺</div>
+        <h3>Serien</h3>
+        <p>Neue Serien entdecken</p>
+      </div>
+
+      <div class="movie">
+        <div class="poster">🌈</div>
+        <h3>DreamFlix Kids</h3>
+        <p>Eine bunte Welt</p>
+      </div>
+
+      <div class="movie">
+        <div class="poster">⭐</div>
+        <h3>Meine Watchlist</h3>
+        <p>Deine Favoriten</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 DreamFlix – Deine Streaming-Welt
+  </footer>
+
+</body>
+</html>
