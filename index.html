@@ -3,282 +3,107 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090909">
-<title>DreamFlix</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DreamFlix Player</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif;padding-bottom:75px}
-button{cursor:pointer}
-header{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#090909;position:sticky;top:0;z-index:5;border-bottom:1px solid #222}
-.logo{font-size:25px;font-weight:900;color:#ed1724}
-.logo span{color:white}
-header button{background:none;border:0;color:white;font-size:25px}
-.page{display:none}
-.page.active{display:block}
-nav{position:fixed;bottom:0;left:0;right:0;background:#151515;border-top:1px solid #333;display:flex;justify-content:space-around;padding:10px 2px;z-index:10}
-nav button{background:none;border:0;color:#ddd;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:5px}
-nav span{font-size:20px}
-.hero{min-height:330px;padding:100px 20px 25px;background:linear-gradient(0deg,#090909,transparent 90%),linear-gradient(90deg,#39080d,#111 65%,#252020)}
-.hero small{color:#ff5962;font-weight:bold}
-.hero h1{font-size:36px;margin:12px 0}
-.hero p{color:#ddd;max-width:350px;line-height:1.5}
-.action{padding:12px 18px;border:0;border-radius:5px;font-weight:bold;margin:8px 5px 0 0}
-.play{background:white;color:#111}
-.more{background:#444;color:white}
-section{padding:12px 16px}
-section h2{font-size:19px}
-.shelf{display:flex;gap:11px;overflow-x:auto;padding-bottom:12px}
-.poster{flex:0 0 125px;height:180px;border-radius:8px;background:linear-gradient(145deg,#75121d,#171717);display:flex;align-items:end;padding:10px;font-weight:bold;font-size:15px}
-.poster:nth-child(2){background:linear-gradient(145deg,#164c68,#151515)}
-.poster:nth-child(3){background:linear-gradient(145deg,#633c12,#151515)}
-.poster:nth-child(4){background:linear-gradient(145deg,#44246c,#151515)}
-.poster:nth-child(5){background:linear-gradient(145deg,#17604c,#151515)}
-.kids-banner{margin:15px;padding:22px;border-radius:12px;background:linear-gradient(120deg,#ff75ae,#7b55d9,#32b8d1)}
-.profile-screen{min-height:75vh;text-align:center;padding:45px 15px}
-.profiles{display:grid;grid-template-columns:repeat(2,minmax(0,130px));justify-content:center;gap:25px;margin:35px auto}
-.profile{background:none;border:0;color:white;font-size:15px}
-.avatar{width:95px;height:95px;border-radius:14px;margin:0 auto 10px;display:grid;place-items:center;font-size:43px;background:linear-gradient(135deg,#9c1724,#311016);border:2px solid transparent}
-.profile:hover .avatar{border-color:white}
-.kids-avatar{background:linear-gradient(135deg,#ff70b5,#7755df,#32b8d1)}
-.search-area{padding:25px 16px}
-.search-area input{width:100%;padding:15px;border-radius:8px;background:#242424;border:1px solid #555;color:white;font-size:17px}
-.results{display:flex;flex-wrap:wrap;gap:12px;padding:15px 16px}
-.results .poster{flex-basis:calc(33.33% - 9px);height:155px;min-width:95px}
-.notice{color:#aaa;font-size:13px;padding:12px 16px}
-.miraculous{background:linear-gradient(120deg,#3d080d,#171717 70%);border-radius:12px;padding:20px;margin:15px}
-.miraculous h2{color:#ff5962}
-footer{text-align:center;color:#777;padding:25px;font-size:12px}
+body{margin:0;background:#090909;color:white;font-family:Arial,sans-serif}
+header{padding:18px;background:#171717;color:#ff3030;font-size:25px;font-weight:bold}
+main{max-width:850px;margin:auto;padding:16px}
+video{width:100%;background:black;border-radius:12px}
+h2{margin-top:25px}
+.settings{background:#1c1c1c;padding:18px;border-radius:14px;margin-top:15px}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+select,button{width:100%;padding:13px;border-radius:8px;border:0;font-size:15px}
+select{background:#303030;color:white}
+button{background:#e50914;color:white;margin-top:12px;font-weight:bold}
+.note{color:#aaa;font-size:13px;line-height:1.5}
 </style>
 </head>
 <body>
+<header> DREAMFLIX</header>
+<main>
+<h1 id="filmTitle">DreamFlix Player</h1>
 
-<header>
-<div class="logo">DF <span>DreamFlix</span></div>
-<button onclick="showPage('search')">⌕</button>
-</header>
+<video id="player" controls playsinline>
+  <!-- Hier eine rechtmäßig nutzbare Videodatei eintragen -->
+</video>
 
-<!-- PROFILE -->
-<div id="profiles" class="page active">
-<div class="profile-screen">
-<h1>Wer schaut gerade?</h1>
-<p>Wähle dein Profil aus ❤️</p>
-<div class="profiles">
-<button class="profile" onclick="enterProfile(false)">
-<div class="avatar">👤</div>Mein Profil
-</button>
-<button class="profile" onclick="enterProfile(false)">
-<div class="avatar">🦊</div>Profil 2
-</button>
-<button class="profile" onclick="enterProfile(false)">
-<div class="avatar">🐼</div>Profil 3
-</button>
-<button class="profile" onclick="enterProfile(false)">
-<div class="avatar">🌟</div>Profil 4
-</button>
-<button class="profile" onclick="kidsLogin()">
-<div class="avatar kids-avatar">🌈</div>DreamFlix Kids
-</button>
-</div>
-<p class="notice">Demo-Profil-Auswahl</p>
-</div>
-</div>
+<div class="settings">
+<h2>⚙️ Wiedergabeeinstellungen</h2>
 
-<!-- HOME -->
-<div id="home" class="page">
-<div class="hero">
-<small>★ DEIN STREAMING-ERLEBNIS</small>
-<h1>Deine Welt.<br>Deine Filme.</h1>
-<p>Entdecke spannende Geschichten, große Abenteuer und deine neue Lieblingsserie.</p>
-<button class="action play" onclick="showPage('movies')">▶ Filme entdecken</button>
-<button class="action more" onclick="showPage('series')">Serien ansehen</button>
-</div>
+<label>🌍 Audio / Sprache</label>
+<select id="audio">
+<option value="">Originalton / Standard</option>
+</select>
 
-<section>
-<h2>🔥 Beliebt auf DreamFlix</h2>
-<div class="shelf">
-<div class="poster">Das Abenteuer</div>
-<div class="poster">Weltraumreise</div>
-<div class="poster">Magische Welt</div>
-<div class="poster">Geheimnisvolle Insel</div>
-<div class="poster">Die Helden</div>
-</div>
-</section>
+<label>💬 Untertitel</label>
+<select id="subtitles">
+<option value="-1">Aus</option>
+</select>
 
-<section>
-<h2>🎬 Filme entdecken</h2>
-<div class="shelf">
-<div class="poster">Action</div>
-<div class="poster">Fantasy</div>
-<div class="poster">Comedy</div>
-<div class="poster">Kinderfilme</div>
-<div class="poster">Abenteuer</div>
-</div>
-</section>
+<label>🎥 Videoqualität</label>
+<select id="quality">
+<option value="auto">Automatisch – beste verfügbare</option>
+<option value="2160">4K Ultra HD (2160p)</option>
+<option value="1080">Full HD (1080p)</option>
+<option value="720">HD (720p)</option>
+</select>
 
-<div class="miraculous">
-<h2>🐞 Miraculous – Ladybug & Cat Noir</h2>
-<p>Willkommen in der Welt der Superhelden aus Paris!</p>
-<div class="shelf">
-<div class="poster">Ladybug</div>
-<div class="poster">Cat Noir</div>
-<div class="poster">Die Miraculous</div>
-<div class="poster">Paris in Gefahr</div>
-<div class="poster">Neue Abenteuer</div>
+<button onclick="applySettings()">Einstellungen übernehmen</button>
+<p class="note" id="status">
+Die verfügbaren Sprachen und Qualitätsstufen hängen von der Videodatei ab.
+</p>
 </div>
-<button class="action play" onclick="showPage('miraculous')">Miraculous entdecken</button>
-</div>
-
-<section>
-<h2>📺 Serien für dich</h2>
-<div class="shelf">
-<div class="poster">Neue Welten</div>
-<div class="poster">Die Freunde</div>
-<div class="poster">Geheimnisse</div>
-<div class="poster">Große Reise</div>
-</div>
-</section>
-
-<div class="kids-banner">
-<h2>🌈 DreamFlix Kids</h2>
-<p>Eine bunte Welt voller Geschichten und Abenteuer!</p>
-<button class="action play" onclick="kidsLogin()">Kids-Profil öffnen</button>
-</div>
-</div>
-
-<!-- FILME -->
-<div id="movies" class="page">
-<section>
-<h1>🎬 Filme</h1>
-<p>Entdecke deine nächste Lieblingsgeschichte.</p>
-<h2>Action</h2>
-<div class="shelf"><div class="poster">Helden</div><div class="poster">Mission</div><div class="poster">Verfolgung</div></div>
-<h2>Fantasy</h2>
-<div class="shelf"><div class="poster">Zauberwelt</div><div class="poster">Drachen</div><div class="poster">Magie</div></div>
-<h2>Comedy</h2>
-<div class="shelf"><div class="poster">Lach mal</div><div class="poster">Freunde</div><div class="poster">Chaos</div></div>
-<h2>Kinderfilme</h2>
-<div class="shelf"><div class="poster">Tierfreunde</div><div class="poster">Zauberwald</div><div class="poster">Abenteuer</div></div>
-<h2>Abenteuer</h2>
-<div class="shelf"><div class="poster">Weltraum</div><div class="poster">Insel</div><div class="poster">Expedition</div></div>
-</section>
-</div>
-
-<!-- SERIEN -->
-<div id="series" class="page">
-<section>
-<h1>📺 Serien</h1>
-<div class="shelf">
-<div class="poster">Neue Welten</div>
-<div class="poster">Die Freunde</div>
-<div class="poster">Geheimnisse</div>
-<div class="poster">Große Reise</div>
-</div>
-<h2>🐞 Miraculous</h2>
-<div class="shelf">
-<div class="poster">Ladybug</div>
-<div class="poster">Cat Noir</div>
-<div class="poster">Paris</div>
-</div>
-</section>
-</div>
-
-<!-- MIRACULOUS -->
-<div id="miraculous" class="page">
-<div class="hero">
-<small>🐞 DREAMFLIX SERIENWELT</small>
-<h1>Miraculous</h1>
-<p>Ladybug und Cat Noir – die Abenteuer der Superhelden aus Paris.</p>
-</div>
-<section>
-<h2>🐞 Miraculous – Ladybug & Cat Noir</h2>
-<div class="shelf">
-<div class="poster">Ladybug</div>
-<div class="poster">Cat Noir</div>
-<div class="poster">Die Miraculous</div>
-<div class="poster">Paris in Gefahr</div>
-</div>
-<p class="notice">Die echten Folgen und offiziellen Bilder benötigen eine entsprechende Lizenz.</p>
-</section>
-</div>
-
-<!-- KIDS -->
-<div id="kids" class="page">
-<div class="kids-banner">
-<h1>🌈 DreamFlix Kids</h1>
-<p>Willkommen in deiner bunten Welt!</p>
-</div>
-<section>
-<h2>🐻 Abenteuer für Kinder</h2>
-<div class="shelf">
-<div class="poster">Tierfreunde</div>
-<div class="poster">Zauberwald</div>
-<div class="poster">Sternenreise</div>
-<div class="poster">Freundschaft</div>
-</div>
-</section>
-</div>
-
-<!-- SUCHE -->
-<div id="search" class="page">
-<div class="search-area">
-<h1>🔍 Suche</h1>
-<p>Finde Filme und Serien auf DreamFlix.</p>
-<input id="searchInput" type="search" placeholder="Titel suchen..." oninput="searchTitles(this.value)">
-</div>
-<div id="searchResults" class="results"></div>
-<p id="emptySearch" class="notice">Gib einen Titel ein, um zu suchen.</p>
-</div>
-
-<!-- MERKLISTE -->
-<div id="watchlist" class="page">
-<section>
-<h1>＋ Meine Merkliste</h1>
-<p>Hier findest du später deine gespeicherten Filme.</p>
-</section>
-</div>
-
-<nav>
-<button onclick="showPage('home')"><span>⌂</span>Start</button>
-<button onclick="showPage('movies')"><span>🎬</span>Filme</button>
-<button onclick="showPage('series')"><span>📺</span>Serien</button>
-<button onclick="showPage('kids')"><span>🌈</span>Kids</button>
-<button onclick="showPage('search')"><span>⌕</span>Suche</button>
-<button onclick="showPage('watchlist')"><span>＋</span>Merkliste</button>
-</nav>
-
-<footer>© 2026 DreamFlix · Deine Streaming-Welt</footer>
+</main>
 
 <script>
-function showPage(id){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-window.scrollTo(0,0);
+const video=document.getElementById("player");
+const audio=document.getElementById("audio");
+const subtitles=document.getElementById("subtitles");
+const quality=document.getElementById("quality");
+const status=document.getElementById("status");
+
+function loadTracks(){
+ audio.innerHTML='<option value="">Originalton / Standard</option>';
+ subtitles.innerHTML='<option value="-1">Aus</option>';
+
+ for(let i=0;i<video.audioTracks?.length;i++){
+   const track=video.audioTracks[i];
+   const option=document.createElement("option");
+   option.value=i;
+   option.textContent=track.label||track.language||"Audiospur "+(i+1);
+   audio.appendChild(option);
+ }
+ for(let i=0;i<video.textTracks.length;i++){
+   const track=video.textTracks[i];
+   const option=document.createElement("option");
+   option.value=i;
+   option.textContent=track.label||track.language||"Untertitel "+(i+1);
+   subtitles.appendChild(option);
+ }
 }
-function enterProfile(){
-showPage('home');
+
+function applySettings(){
+ const selectedAudio=audio.value;
+ if(video.audioTracks && selectedAudio!==""){
+   for(let i=0;i<video.audioTracks.length;i++){
+     video.audioTracks[i].enabled=(i===Number(selectedAudio));
+   }
+ }
+ for(let i=0;i<video.textTracks.length;i++){
+   video.textTracks[i].mode=
+     (selectedAudio!=="" && i===Number(subtitles.value))
+       ?"showing":"disabled";
+ }
+ if(subtitles.value!=="-1"){
+   const track=video.textTracks[Number(subtitles.value)];
+   if(track)track.mode="showing";
+ }
+ status.textContent="Einstellungen übernommen, soweit die Videodatei sie unterstützt.";
 }
-function kidsLogin(){
-let pin=prompt("Eltern-PIN eingeben (Demo: 1234)");
-if(pin==="1234"){
-showPage('kids');
-}else if(pin!==null){
-alert("Falsche PIN!");
-}
-}
-function searchTitles(value){
-let results=document.getElementById('searchResults');
-results.innerHTML="";
-let titles=["Das Abenteuer","Weltraumreise","Magische Welt","Geheimnisvolle Insel","Die Helden","Fantasy","Action","Comedy","Kinderfilme","Ladybug","Cat Noir","Miraculous","Neue Welten","Die Freunde","Geheimnisse","Tierfreunde","Zauberwald"];
-let matches=titles.filter(t=>t.toLowerCase().includes(value.toLowerCase()));
-matches.forEach(title=>{
-let card=document.createElement('div');
-card.className='poster';
-card.textContent=title;
-results.appendChild(card);
-});
-document.getElementById('emptySearch').textContent=value?(matches.length?matches.length+" Treffer":"Keine Treffer gefunden"):"Gib einen Titel ein, um zu suchen.";
-}
+
+video.addEventListener("loadedmetadata",loadTracks);
 </script>
 </body>
 </html>
