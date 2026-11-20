@@ -3,145 +3,213 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10090d">
 <title>DreamFlix</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#10090d;color:white;font-family:Arial,sans-serif}
-header{position:sticky;top:0;background:#130b10f5;padding:14px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.logo{font-size:25px;font-weight:900;color:#ff304b}
-nav{display:flex;gap:8px;overflow:auto;padding:12px}
-button,select,input{border:0;border-radius:8px;padding:11px;background:#292027;color:white}
-button{cursor:pointer}
-button:hover{background:#b91f39}
-main{padding:14px}
-.hero{min-height:260px;border-radius:16px;padding:25px;background:linear-gradient(90deg,#14090eea,#14090e55),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200') center/cover;display:flex;flex-direction:column;justify-content:end}
-h1{font-size:32px}
-h2{margin-top:28px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.card{background:#211820;border-radius:12px;overflow:hidden}
-.card img{width:100%;aspect-ratio:2/3;object-fit:cover;background:#352832}
+header{background:#190d13;padding:18px;position:sticky;top:0;z-index:5;border-bottom:1px solid #39202b}
+.logo{font-size:28px;font-weight:900;color:#ff304b}
+nav{display:flex;gap:9px;overflow:auto;margin-top:15px}
+button{border:0;border-radius:9px;padding:11px 15px;background:#30202a;color:white;font-weight:bold;cursor:pointer}
+button.active,button.primary{background:#e92745}
+main{padding:18px;max-width:1100px;margin:auto}
+.hero{background:linear-gradient(90deg,#310d1b,#74152d);padding:30px 22px;border-radius:17px;margin-bottom:25px;min-height:190px;display:flex;flex-direction:column;justify-content:center}
+.hero h1{font-size:34px;margin:0 0 10px}
+h2{font-size:22px}
+input,select{padding:13px;border-radius:9px;border:1px solid #60404c;background:#21151c;color:white;width:100%;margin:7px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:14px}
+.card{background:#21151c;border-radius:12px;overflow:hidden;cursor:pointer}
+.card img{width:100%;aspect-ratio:2/3;object-fit:cover;background:#39202b}
 .info{padding:10px}
-.info h3{margin:3px 0 8px;font-size:15px}
-.small{font-size:12px;color:#c9b9c1}
+.info strong{display:block;margin-bottom:8px}
+.small{font-size:12px;color:#c9b9c0}
+section{margin:25px 0}
+.page{display:none}
+.page.active{display:block}
 .actions{display:flex;gap:6px;flex-wrap:wrap}
-#player{width:100%;max-height:55vh;background:black}
-.hidden{display:none!important}
-.panel{background:#211820;padding:16px;border-radius:12px;margin:12px 0}
-input,select{width:100%;margin:6px 0}
-footer{text-align:center;color:#998b93;padding:30px}
-@media(min-width:700px){.grid{grid-template-columns:repeat(5,1fr)}main{max-width:1200px;margin:auto}.hero{min-height:380px}}
+.actions button{font-size:12px;padding:8px}
+#message{color:#ff8294}
+footer{text-align:center;color:#9c8991;padding:30px}
 </style>
 </head>
 <body>
 <header>
-<div class="logo">DREAMFLIX</div>
-<select id="language" onchange="setLanguage(this.value)" style="width:auto">
-<option value="de">Deutsch</option><option value="ar">العربية</option>
-<option value="tr">Türkçe</option><option value="en">English</option>
-<option value="fr">Français</option><option value="ru">Русский</option>
-<option value="es">Español</option><option value="pl">Polski</option>
-<option value="pt">Português</option><option value="ko">한국어</option>
-<option value="ja">日本語</option>
-</select>
+  <div class="logo">DREAMFLIX</div>
+  <nav>
+    <button class="active" onclick="showPage('home',this)">Startseite</button>
+    <button onclick="showPage('movies',this)">Filme</button>
+    <button onclick="showPage('series',this)">Serien</button>
+    <button onclick="showPage('kids',this)">Kids 🌈</button>
+    <button onclick="showPage('search',this)">Suchen</button>
+    <button onclick="showPage('saved',this)">Merkliste ♥</button>
+    <button onclick="showPage('admin',this)">Admin</button>
+  </nav>
 </header>
-<nav>
-<button onclick="showPage('home')">Startseite</button>
-<button onclick="showPage('movies')">Filme</button>
-<button onclick="showPage('series')">Serien</button>
-<button onclick="showPage('kids')">Kids 🌈</button>
-<button onclick="showPage('search')">Suchen</button>
-<button onclick="showPage('saved')">Merkliste ♥</button>
-<button onclick="showPage('admin')">Admin</button>
-</nav>
+
 <main>
-<section id="home">
-<div class="hero">
-<h1>Deine Welt. Deine Filme.</h1>
-<p>Willkommen bei DreamFlix.</p>
-<div class="actions"><button onclick="showPage('movies')">Filme entdecken</button><button onclick="showPage('series')">Serien entdecken</button></div>
-</div>
-<h2>Beliebte Filme</h2><div class="grid" id="homeMovies"></div>
-<h2>Serien entdecken</h2><div class="grid" id="homeSeries"></div>
-</section>
-<section id="movies" class="hidden"><h1>Filme</h1><div class="grid" id="movieList"></div></section>
-<section id="series" class="hidden"><h1>Serien</h1><div class="grid" id="seriesList"></div></section>
-<section id="kids" class="hidden"><div class="hero" style="background:linear-gradient(120deg,#e34c9b,#8055e8,#18a9c9)"><h1>🌈 DreamFlix Kids</h1><p>Eine bunte Welt für Kinder.</p></div><div class="grid" id="kidsList"></div></section>
-<section id="search" class="hidden"><h1>Suchen</h1><input id="searchInput" placeholder="Film oder Serie suchen..." oninput="searchTitles()"><div class="grid" id="searchList"></div></section>
-<section id="saved" class="hidden"><h1>Meine Merkliste ♥</h1><div class="grid" id="savedList"></div></section>
-<section id="detail" class="hidden"><button onclick="showPage('home')">← Zurück</button><div id="detailContent"></div></section>
-<section id="admin" class="hidden"><h1>Admin-Bereich</h1><div class="panel"><p>Nur für den Betreiber. Demo-PIN: 2468. Für eine echte App muss der Admin-Zugang serverseitig abgesichert werden.</p><input id="pin" type="password" placeholder="Admin-PIN"><button onclick="adminLogin()">Anmelden</button></div><div id="adminForm" class="panel hidden"><h2>Inhalt hinzufügen</h2><input id="newTitle" placeholder="Titel"><select id="newType"><option value="movie">Film</option><option value="tv">Serie</option></select><input id="newPoster" placeholder="Poster-Bild URL"><input id="newDescription" placeholder="Beschreibung"><input id="newVideo" placeholder="Legale Video-URL (optional)"><button onclick="addTitle()">Hinzufügen</button></div></section>
-<section id="watch" class="hidden"><button onclick="showPage('home')">← Zurück</button><h1 id="watchTitle"></h1><video id="player" controls playsinline></video><p id="watchMessage">Nur Videos abspielen, für die du die nötigen Rechte hast.</p></section>
+  <div id="home" class="page active">
+    <div class="hero">
+      <h1>Deine Welt. Deine Filme.</h1>
+      <p>Willkommen bei DreamFlix!</p>
+      <button class="primary" onclick="showPage('movies')">Filme entdecken</button>
+    </div>
+    <section><h2>Beliebte Filme</h2><div id="homeMovies" class="grid"></div></section>
+    <section><h2>Beliebte Serien</h2><div id="homeSeries" class="grid"></div></section>
+  </div>
+
+  <div id="movies" class="page">
+    <h2>🎬 Filme</h2><div id="movieGrid" class="grid"></div>
+  </div>
+
+  <div id="series" class="page">
+    <h2>📺 Serien</h2><div id="seriesGrid" class="grid"></div>
+  </div>
+
+  <div id="kids" class="page">
+    <div class="hero" style="background:linear-gradient(120deg,#7b36bb,#e84391,#e7a52b)">
+      <h1>DreamFlix Kids 🌈</h1><p>Eine bunte Welt für Kinder!</p>
+    </div>
+    <div id="kidsGrid" class="grid"></div>
+  </div>
+
+  <div id="search" class="page">
+    <h2>🔎 Suchen</h2>
+    <input id="searchInput" placeholder="Film oder Serie suchen..." oninput="renderSearch()">
+    <div id="searchGrid" class="grid"></div>
+  </div>
+
+  <div id="saved" class="page">
+    <h2>♥ Meine Merkliste</h2>
+    <div id="savedGrid" class="grid"></div>
+  </div>
+
+  <div id="admin" class="page">
+    <h2>⚙️ Admin-Bereich</h2>
+    <p class="small">Demo-Bereich – die PIN ist nicht als echte Sicherheit geeignet.</p>
+    <input id="pin" type="password" placeholder="Demo-PIN">
+    <button class="primary" onclick="unlockAdmin()">Anmelden</button>
+    <div id="adminForm" style="display:none">
+      <h2>Neuen Titel hinzufügen</h2>
+      <input id="newTitle" placeholder="Titel">
+      <select id="newType"><option value="Film">Film</option><option value="Serie">Serie</option></select>
+      <input id="newImage" placeholder="Poster-Bild-URL">
+      <input id="newDescription" placeholder="Beschreibung">
+      <button class="primary" onclick="addTitle()">Titel hinzufügen</button>
+      <p id="message"></p>
+    </div>
+  </div>
+
+  <div id="details" class="page">
+    <button onclick="showPage('home')">← Zurück</button>
+    <div id="detailContent"></div>
+  </div>
 </main>
-<footer>DreamFlix · Filme, Serien und Fantasie</footer>
+
+<footer>DreamFlix © 2026 · Deine Streaming-Welt</footer>
+
 <script>
-const translations={
-de:{welcome:"Willkommen bei DreamFlix",movies:"Filme",series:"Serien"},
-en:{welcome:"Welcome to DreamFlix",movies:"Movies",series:"Series"},
-ar:{welcome:"مرحباً بك في دريم فليكس",movies:"أفلام",series:"مسلسلات"},
-tr:{welcome:"DreamFlix'e hoş geldiniz",movies:"Filmler",series:"Diziler"},
-fr:{welcome:"Bienvenue sur DreamFlix",movies:"Films",series:"Séries"},
-ru:{welcome:"Добро пожаловать в DreamFlix",movies:"Фильмы",series:"Сериалы"},
-es:{welcome:"Bienvenido a DreamFlix",movies:"Películas",series:"Series"},
-pl:{welcome:"Witamy w DreamFlix",movies:"Filmy",series:"Seriale"},
-pt:{welcome:"Bem-vindo ao DreamFlix",movies:"Filmes",series:"Séries"},
-ko:{welcome:"DreamFlix에 오신 것을 환영합니다",movies:"영화",series:"시리즈"},
-ja:{welcome:"DreamFlixへようこそ",movies:"映画",series:"シリーズ"}
-};
-let titles=JSON.parse(localStorage.getItem("df_titles")||"null")||[
-{id:1,title:"Big Buck Bunny",type:"movie",poster:"https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217",description:"Ein animiertes Abenteuer von Blender Open Movies.",video:"https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"},
-{id:2,title:"Sintel",type:"movie",poster:"https://durian.blender.org/wp-content/uploads/2010/06/sintel_poster.jpg",description:"Ein Fantasy-Abenteuer. Prüfe die Lizenzbedingungen vor einer öffentlichen Nutzung.",video:""},
-{id:3,title:"Tears of Steel",type:"movie",poster:"https://mango.blender.org/wp-content/uploads/2013/05/01_thom_celia_bridge.jpg",description:"Ein Science-Fiction-Kurzfilm.",video:""},
-{id:4,title:"Elephants Dream",type:"movie",poster:"https://orange.blender.org/wp-content/themes/orange/images/common/ed_header.jpg",description:"Ein experimenteller Animationsfilm.",video:""},
-{id:5,title:"Miraculous",type:"tv",poster:"",description:"Katalogeintrag – keine Streamingrechte oder Videodatei hinterlegt.",video:""},
-{id:6,title:"Rapunzel",type:"movie",poster:"",description:"Katalogeintrag – keine Streamingrechte oder Videodatei hinterlegt.",video:""},
-{id:7,title:"Frozen",type:"movie",poster:"",description:"Katalogeintrag – keine Streamingrechte oder Videodatei hinterlegt.",video:""},
-{id:8,title:"Winx Club",type:"tv",poster:"",description:"Katalogeintrag – keine Streamingrechte oder Videodatei hinterlegt.",video:""}
+const starter = [
+ {id:1,title:"Big Buck Bunny",type:"Film",description:"Ein kostenloser Animationsfilm.",image:"https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217",video:"https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"},
+ {id:2,title:"Sintel",type:"Film",description:"Ein Fantasy-Kurzfilm.",image:"https://durian.blender.org/wp-content/uploads/2010/05/sintel_poster.jpg"},
+ {id:3,title:"Tears of Steel",type:"Film",description:"Ein Science-Fiction-Kurzfilm.",image:"https://mango.blender.org/wp-content/uploads/2013/05/01_thom_celia_bridge.jpg"},
+ {id:4,title:"Elephants Dream",type:"Film",description:"Ein experimenteller Animationsfilm.",image:"https://orange.blender.org/wp-content/themes/orange/images/common/ed_header.jpg"},
+ {id:5,title:"Miraculous",type:"Serie",description:"Eintrag im Katalog. Für die Wiedergabe werden offizielle Streaming-Rechte benötigt.",image:""},
+ {id:6,title:"Rapunzel",type:"Film",description:"Eintrag im Katalog. Für die Wiedergabe werden offizielle Streaming-Rechte benötigt.",image:""},
+ {id:7,title:"Frozen",type:"Film",description:"Eintrag im Katalog. Für die Wiedergabe werden offizielle Streaming-Rechte benötigt.",image:""},
+ {id:8,title:"Winx Club",type:"Serie",description:"Eintrag im Katalog. Für die Wiedergabe werden offizielle Streaming-Rechte benötigt.",image:""}
 ];
-let saved=JSON.parse(localStorage.getItem("df_saved")||"[]");
-function persist(){localStorage.setItem("df_titles",JSON.stringify(titles));localStorage.setItem("df_saved",JSON.stringify(saved))}
-function setLanguage(lang){
-document.documentElement.lang=lang;
-document.documentElement.dir=lang==="ar"?"rtl":"ltr";
-document.querySelector(".hero h1").textContent=translations[lang].welcome;
+
+let titles;
+try{titles=JSON.parse(localStorage.getItem("dreamflix_titles"))||starter}
+catch(e){titles=starter}
+let saved=JSON.parse(localStorage.getItem("dreamflix_saved")||"[]");
+
+function persist(){
+ localStorage.setItem("dreamflix_titles",JSON.stringify(titles));
+ localStorage.setItem("dreamflix_saved",JSON.stringify(saved));
 }
-function showPage(id){
-document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
-if(id==="saved")render("savedList",titles.filter(t=>saved.includes(t.id)));
-if(id==="movies")render("movieList",titles.filter(t=>t.type==="movie"));
-if(id==="series")render("seriesList",titles.filter(t=>t.type==="tv"));
-if(id==="kids")render("kidsList",titles.filter(t=>t.kids));
+function showPage(id,btn){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ renderAll();
+ window.scrollTo(0,0);
 }
 function card(t){
-return `<article class="card"><img src="${safe(t.poster)||"https://placehold.co/400x600/241820/ffffff?text=DreamFlix"}" alt=""><div class="info"><h3>${safe(t.title)}</h3><p class="small">${safe(t.description||"")}</p><div class="actions"><button onclick="details(${t.id})">Details</button><button onclick="toggleSaved(${t.id})">♥</button></div></div></article>`;
+ let image=t.image||"https://placehold.co/400x600/30202a/ffffff?text=DreamFlix";
+ return `<div class="card" onclick="details(${t.id})">
+ <img src="${image}" alt="${t.title}" onerror="this.src='https://placehold.co/400x600/30202a/ffffff?text=DreamFlix'">
+ <div class="info"><strong>${escapeHTML(t.title)}</strong>
+ <div class="small">${t.type}</div></div></div>`;
 }
-function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function render(id,items){document.getElementById(id).innerHTML=items.map(card).join("")||"<p>Noch keine Inhalte.</p>"}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fill(id,list){
+ document.getElementById(id).innerHTML=list.map(card).join("")||"<p>Noch keine Titel vorhanden.</p>";
+}
+function renderAll(){
+ fill("homeMovies",titles.filter(t=>t.type==="Film").slice(0,6));
+ fill("homeSeries",titles.filter(t=>t.type==="Serie").slice(0,6));
+ fill("movieGrid",titles.filter(t=>t.type==="Film"));
+ fill("seriesGrid",titles.filter(t=>t.type==="Serie"));
+ fill("kidsGrid",titles);
+ fill("savedGrid",titles.filter(t=>saved.includes(t.id)));
+ renderSearch();
+}
+function renderSearch(){
+ let q=(document.getElementById("searchInput")?.value||"").toLowerCase();
+ fill("searchGrid",titles.filter(t=>t.title.toLowerCase().includes(q)));
+}
 function details(id){
-let t=titles.find(x=>x.id===id);if(!t)return;
-showPage("detail");
-document.getElementById("detailContent").innerHTML=`<h1>${safe(t.title)}</h1><img style="width:180px;border-radius:12px" src="${safe(t.poster)||"https://placehold.co/400x600/241820/ffffff?text=DreamFlix"}"><p>${safe(t.description)}</p><button onclick="watch(${t.id})">▶ Abspielen</button><button onclick="toggleSaved(${t.id})">♥ Merkliste</button>`;
+ let t=titles.find(x=>x.id===id);if(!t)return;
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById("details").classList.add("active");
+ document.getElementById("detailContent").innerHTML=`
+ <h1>${escapeHTML(t.title)}</h1>
+ <img style="width:170px;border-radius:12px" src="${t.image||"https://placehold.co/400x600/30202a/ffffff?text=DreamFlix"}">
+ <p>${escapeHTML(t.description||"")}</p>
+ <p class="small">${t.type}</p>
+ <div class="actions">
+ <button class="primary" onclick="playTitle(${t.id})">▶ Abspielen</button>
+ <button onclick="toggleSaved(${t.id})">♥ Merkliste</button>
+ </div><div id="player"></div>`;
+ window.scrollTo(0,0);
 }
-function toggleSaved(id){saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];persist();if(!document.getElementById("saved").classList.contains("hidden"))showPage("saved")}
-function searchTitles(){let q=document.getElementById("searchInput").value.toLowerCase();render("searchList",titles.filter(t=>t.title.toLowerCase().includes(q)))}
-function watch(id){
-let t=titles.find(x=>x.id===id);showPage("watch");document.getElementById("watchTitle").textContent=t.title;
-let p=document.getElementById("player");p.pause();p.src=t.video||"";
-document.getElementById("watchMessage").textContent=t.video?"Videoquelle geladen.":"Für diesen Titel ist noch keine legale Videodatei hinterlegt.";
+function playTitle(id){
+ let t=titles.find(x=>x.id===id);
+ let player=document.getElementById("player");
+ if(t.video){
+  player.innerHTML=`<video controls playsinline style="width:100%;margin-top:20px" src="${t.video}"></video>`;
+ }else{
+  player.innerHTML="<p>Für diesen Titel ist noch keine legale Videodatei verbunden.</p>";
+ }
 }
-function adminLogin(){if(document.getElementById("pin").value==="2468")document.getElementById("adminForm").classList.remove("hidden");else alert("Falsche PIN")}
+function toggleSaved(id){
+ saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+ persist();renderAll();
+}
+function unlockAdmin(){
+ if(document.getElementById("pin").value==="2468"){
+  document.getElementById("adminForm").style.display="block";
+ }else alert("Falsche Demo-PIN");
+}
 function addTitle(){
-let title=document.getElementById("newTitle").value.trim();if(!title)return alert("Bitte einen Titel eingeben");
-titles.push({id:Date.now(),title,type:document.getElementById("newType").value,poster:document.getElementById("newPoster").value,description:document.getElementById("newDescription").value,video:document.getElementById("newVideo").value});
-persist();alert("Titel hinzugefügt");showPage("home");renderHome();
+ let title=document.getElementById("newTitle").value.trim();
+ if(!title){alert("Bitte einen Titel eingeben.");return}
+ titles.push({
+  id:Date.now(),title,type:document.getElementById("newType").value,
+  image:document.getElementById("newImage").value.trim(),
+  description:document.getElementById("newDescription").value.trim()
+ });
+ persist();renderAll();
+ document.getElementById("message").textContent="Titel wurde hinzugefügt!";
+ document.getElementById("newTitle").value="";
 }
-function renderHome(){
-render("homeMovies",titles.filter(t=>t.type==="movie"));
-render("homeSeries",titles.filter(t=>t.type==="tv"));
-}
-renderHome();
+renderAll();
 </script>
 </body>
 </html>
